@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stddef.h>
+#include <string.h>
+#include <ctype.h>
 
 #include "proc_iomem_parser.h"
 
@@ -65,5 +67,13 @@ int do_stroul(char *str, int base, uint64_t *result);
  * @returns: 0 on success
 */
 int get_alias(uint64_t pa, mem_range_t* mrs, uint64_t* alias_masks, size_t len, uint64_t* out_alias);
+
+
+/**
+ * @brief
+ * @brief
+ * @returns: 0 on success
+*/
+uint8_t* hex_string_to_bytes(const char* hex_string, size_t* length);
 
 #endif

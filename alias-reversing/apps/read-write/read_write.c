@@ -10,16 +10,84 @@
 #include "readalias.h"
 #include "readalias_ioctls.h"
 #include <argp.h>
+#include <unistd.h>
 
 //cli arguments
 struct arguments {
     uint64_t address;
     uint64_t length;
     bool read;
+    bool write;
+    bool monitor;
     char* write_string;
     bool access_reserved;
     int verbosity;
 };
+
+/**
+ * @brief 
+ * @brief mr :
+*/
+void print_mr_info(mem_range_t* mr) {
+        double mr_size = (double)(mr->end - mr->start);
+        double mr_size_gib = mr_size/(1<<30);
+        double mr_size_mib = mr_size/(1<<20);
+        double mr_size_kib = mr_size/(1<<10);
+        printf("size = %f (GiB)\n", mr_size_gib);
+        printf("size = %f (MiB)\n", mr_size_mib);
+        printf("size = %f (kiB)\n", mr_size_kib);
+        printf("size = %f (B)\n", mr_size);
+}
+
+/**
+ * @brief 
+ * @brief mr :
+ * @return 0 on success.
+*/
+int write_mem_range(mem_range_t mr, struct arguments args) {
+    uint64_t aligned_start = mr.start;
+    if (aligned_start & 0xfff) {
+        aligned_start = (aligned_start + 4096) & 0xfff;
+    }
+    if (aligned_start >= mr.end) {
+        err_log("Weird small memory range: MemRange{.start = 0x%09jx .end=0x%09jx} and aligned_start=0x%09jx\n",
+            mr.start, mr.end, aligned_start);
+        return -1;
+    }
+
+    struct pamemcpy_cfg cfg = {
+        .access_reserved = args.access_reserved,
+        .err_on_access_fail = false,
+        .flush_method = FM_CLFLUSH,
+        .out_stats = {0},
+    };
+
+    uint64_t tot_len = mr.end - mr.start;
+    for (uint64_t pa = aligned_start; pa < mr.end; pa += 4096) {
+        size_t chunk_len = tot_len > 4096 ? 4096 : tot_len;
+        tot_len -= chunk_len;
+
+        size_t length;
+        uint8_t* source = hex_string_to_bytes(args.write_string, &length);
+        if (source == NULL) {
+            err_log("Conversion from hex string to bytes failed\n");
+            return -1;
+        }
+
+        if (memcpy_topa_ext(pa, source, chunk_len, &cfg)) {
+            err_log("memcpy_topa_ext for 0x%jx failed\n", pa);
+            return -1;
+        }
+
+        if (flush_ext(pa, chunk_len, &cfg)) {
+            err_log("flush_range for 0x%jx failed\n", pa);
+            return -1;
+        }
+
+        free(source);
+    }
+    return 0;
+}
 
 /**
  * @brief 
@@ -37,12 +105,6 @@ int read_mem_range(mem_range_t mr, struct arguments args) {
         return -1;
     }
 
-    printf("%d\n", args.access_reserved);
-
-    //sweep over pages, storing pages where alias did not work
-    //size_t pages_in_mr = (mr.end - aligned_start) /  4096;
-    //size_t df_next = 0;
-    //size_t access_errors = 0;
     struct pamemcpy_cfg cfg = {
         .access_reserved = args.access_reserved,
         .err_on_access_fail = false,
@@ -50,27 +112,24 @@ int read_mem_range(mem_range_t mr, struct arguments args) {
         .out_stats = {0},
     };
 
-    const size_t msg_len = 64;
-    uint8_t dest[msg_len];
-
-    //uint64_t* df = malloc(sizeof(uint64_t) * pages_in_mr);
+    uint64_t tot_len = mr.end - mr.start;
     for (uint64_t pa = aligned_start; pa < mr.end; pa += 4096) {
-        //uint64_t alias_pa = pa ^ alias;
-        //printf("pa 0x%09jx alias_candidate 0x%09jx\n", pa, alias_pa);
-        //memcpy_topa_ext(dest, pa, msg_len, &cfg);
+        size_t chunk_len = tot_len > 4096 ? 4096 : tot_len;
+        tot_len -= chunk_len;
 
-        if (flush_ext(pa, msg_len, &cfg)) {
+        if (flush_ext(pa, chunk_len, &cfg)) {
             err_log("flush_range for 0x%jx failed\n", pa);
             return -1;
         }
 
-        if (memcpy_frompa_ext(dest, pa, msg_len, &cfg)) {
-            err_log("memcpy_topa for 0x%jx failed\n", pa);
+        uint8_t* dest = malloc(sizeof(uint8_t) * chunk_len);
+        if (memcpy_frompa_ext(dest, pa, chunk_len, &cfg)) {
+            err_log("memcpy_frompa_ext for 0x%jx failed\n", pa);
             return -1;
         }
 
-        hexdump(dest, msg_len);
-        hexdump(dest, msg_len, 16);
+        hexdump(dest, chunk_len, 32);
+        free(dest);
     }
     return 0;
 }
@@ -90,20 +149,32 @@ int run(struct arguments args) {
 
     mem_range_t mr;
     mr.start = args.address;
-    mr.end = args.address + args.length;
-    char* name = "Range to read from.\n";
-    memcpy(mr.name, name, strlen(name));
 
-    double mr_size_gib = (double)(mr.end - mr.start)/(1<<30);
-    double mr_size_mib = (double)(mr.end - mr.start)/(1<<20);
-    double mr_size_kib = (double)(mr.end - mr.start)/(1<<10);
-    double mr_size = (double)(mr.end - mr.start);
-    printf("size = %f (GiB)\n", mr_size_gib);
-    printf("size = %f (MiB)\n", mr_size_mib);
-    printf("size = %f (kiB)\n", mr_size_kib);
-    printf("size = %f (B)\n", mr_size);
+    if (args.read) {
+        mr.end = args.address + args.length;
+        char* name = "Range to read from.\n";
+        memcpy(mr.name, name, strlen(name));
 
-    read_mem_range(mr, args);
+        print_mr_info(&mr);
+
+        read_mem_range(mr, args);
+    }
+
+    if (args.write) {
+        const uint64_t len = strlen(args.write_string) / 2;
+        mr.end = args.address + len;
+        char* name = "Range to write to.\n";
+        memcpy(mr.name, name, strlen(name));
+
+        print_mr_info(&mr);
+
+        write_mem_range(mr, args);
+    }
+
+    while(args.monitor) {
+        read_mem_range(mr, args);
+        usleep(500000);
+    }
 
     return 0;
 }
@@ -113,12 +184,13 @@ const char* argp_program_bug_address = "matthias.kesenheimer@syss.de";
 static char doc[] = "Tool to test if the specified alias functions work for addresses in the memory range";
 static char args_doc[] = "--start ADDRESS --end ADDRESS [--read] [--write STRING]";
 static struct argp_option options[] = {
-    {"address", 1, "ADDRESS", 0, "Start memory address to read from or write to (i.e. 0x00).\n", 0},
-    {"length", 2, "LENGTH", 0, "Number of bytes to read (i.e. 256).\n", 0},
+    {"address", 1, "ADDRESS", 0, "Start memory address to read from or write to in decimal or hexadecimal (i.e. 3735928559 or 0xdeadbeef).\n", 0},
+    {"length", 2, "LENGTH", 0, "Number of bytes to read in decimal or hexadecimal (i.e. 256 or 0x100).\n", 0},
     {"read", 3, 0, 0, "Whether to read from the memory range.\n", 0},
-    {"write", 4, "STRING", 0, "String to write to the memory range.\n", 0},
-    {"access-reserved", 5, 0, 0, "Allow accessing reserved memory ranges. Might lead to crashes\n", 0},
-    {"verbosity", 6, "NUMBER", 0, "Verbosity level (0: default, 1: error, 2: warn, 3: info, 4: debug).\n", 0},
+    {"write", 4, "HEXSTRING", 0, "String to write to the memory range (i.e. DEADBEEF).\n", 0},
+    {"monitor", 5, 0, 0, "Whether to monitor the memory region continously.\n", 0},
+    {"access-reserved", 6, 0, 0, "Allow accessing reserved memory ranges. Might lead to crashes\n", 0},
+    {"verbosity", 7, "NUMBER", 0, "Verbosity level (0: default, 1: error, 2: warn, 3: info, 4: debug).\n", 0},
     {0},
 };
 
@@ -129,7 +201,11 @@ static error_t parse_opt(int key, char* arg, struct argp_state* state) {
     char *endptr;
     switch(key) {
         case 1:
-            args->address = strtoul(arg, &endptr, 16);
+            if (strncmp(arg, "0x", 2) == 0) {
+                args->address = strtoul(arg, &endptr, 16);
+            } else {
+                args->address = strtoul(arg, &endptr, 10);
+            }
             if (endptr == arg || *endptr != '\0') {
                 fprintf(stderr, "Invalid address value\n");
                 exit(EXIT_FAILURE);
@@ -137,8 +213,12 @@ static error_t parse_opt(int key, char* arg, struct argp_state* state) {
             ++argc_provided;
             break;
         case 2:
-            args->length = strtoul(arg, &endptr, 16);
-            if (endptr == arg || *endptr != '\0') {
+            if (strncmp(arg, "0x", 2) == 0) {
+                args->length = strtoul(arg, &endptr, 16);
+            } else {
+                args->length = strtoul(arg, &endptr, 10);
+            }
+            if (endptr == arg) {
                 fprintf(stderr, "Invalid address value\n");
                 exit(EXIT_FAILURE);
             }
@@ -146,16 +226,22 @@ static error_t parse_opt(int key, char* arg, struct argp_state* state) {
             break;
         case 3:
             args->read = true;
+            args->write = false;
             ++argc_provided;
             break;
         case 4:
+            args->read = false;
+            args->write = true;
             args->write_string = arg;
             ++argc_provided;
             break;
         case 5:
-            args->access_reserved = true;
+            args->monitor = true;
             break;
         case 6:
+            args->access_reserved = true;
+            break;
+        case 7:
             args->verbosity = atoi(arg);
             if (args->verbosity == 0 && strcmp(arg, "0") != 0) {
                 perror("atoi");
@@ -190,6 +276,8 @@ int main(int argc, char** argv) {
         .address = 0,
         .length = 0xff,
         .read = true,
+        .write = false,
+        .monitor = false,
         .write_string = NULL,
         .access_reserved = false,
         .verbosity = 0
