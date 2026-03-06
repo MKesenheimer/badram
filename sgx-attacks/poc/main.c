@@ -33,7 +33,7 @@ page_stats_t stats;
 
 int main( int argc, char **argv )
 {
-    if(argc != 2 ) {
+    if(argc != 2) {
         printf("Usage: ./app <path to alias definition csv>\n");
         return -1;
     }
@@ -42,7 +42,7 @@ int main( int argc, char **argv )
     mem_range_t* mrs = NULL;
     uint64_t* alias_masks = NULL;
     size_t mrs_len;
-    if( parse_csv(path_alias_csv, &mrs, &alias_masks, &mrs_len) ) {
+    if (parse_csv(path_alias_csv, &mrs, &alias_masks, &mrs_len)) {
         err_log("failed to parse memory range and aliases from %s\n", path_alias_csv);
         return -1;
     }

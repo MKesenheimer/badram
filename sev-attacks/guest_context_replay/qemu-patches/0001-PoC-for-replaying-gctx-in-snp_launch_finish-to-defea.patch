@@ -93,7 +93,7 @@ index 0000000000..0e6baccbe8
 +	};
 +
 +	
-+	if( -1 == (kvm_fd = open("/dev/kvm", O_RDWR|O_CLOEXEC))) {
++	if (-1 == (kvm_fd = open("/dev/kvm", O_RDWR|O_CLOEXEC))) {
 +		err_log("failed to open kvm file\n");
 +		return -1;
 +	}
@@ -111,7 +111,7 @@ index 0000000000..0e6baccbe8
 +int badram_request_gctx_replay(struct badram_gctx_replay_args args) {
 +	int kvm_fd = -1;
 +
-+	if( -1 == (kvm_fd = open("/dev/kvm", O_RDWR|O_CLOEXEC))) {
++	if (-1 == (kvm_fd = open("/dev/kvm", O_RDWR|O_CLOEXEC))) {
 +		err_log("failed to open kvm file\n");
 +		return -1;
 +	}
@@ -222,7 +222,7 @@ index 0000000000..aaf7b47f65
 +
 +int get_alias(uint64_t pa, mem_range_t* mrs, uint64_t* alias_masks, size_t len, uint64_t* out_alias) {
 +  for(size_t i = 0; i < len; i++) {
-+    if( (pa >= mrs[i].start) && (pa < mrs[i].end) ) {
++    if ((pa >= mrs[i].start) && (pa < mrs[i].end)) {
 +      *out_alias = pa ^ alias_masks[i];
 +      return 0;
 +    }
@@ -300,7 +300,7 @@ index 0000000000..91b2c361b6
 +  }
 +  //write csv data
 +  for(size_t i = 0; i < len; i++) {
-+    if( -1 == fprintf(f, "0x%jx,0x%jx,0x%jx\n", mr[i].start, mr[i].end, alias_masks[i])) {
++    if (-1 == fprintf(f, "0x%jx,0x%jx,0x%jx\n", mr[i].start, mr[i].end, alias_masks[i])) {
 +      err_log("failed to write : %s\n", strerror(errno));
 +      fclose(f);
 +      return -1;
@@ -330,26 +330,26 @@ index 0000000000..91b2c361b6
 +  uint64_t dummy;
 +  size_t buf_bytes = 512;
 +  buf = (char*)malloc(buf_bytes);
-+  if( fgets(buf, buf_bytes, f) == NULL ) {
++  if (fgets(buf, buf_bytes, f) == NULL) {
 +    err_log("Failed to read header row : %s\n", strerror(errno));
 +    goto error;
 +  }
-+  if( ferror(f) ) {
++  if (ferror(f)) {
 +    err_log("Error reading from %s : %s\n", path, strerror(errno));
 +    goto error;
 +  }
-+  while(  3 == fscanf(f, "0x%jx,0x%jx,0x%jx\n", &dummy, &dummy, &dummy )) {
++  while ( 3 == fscanf(f, "0x%jx,0x%jx,0x%jx\n", &dummy, &dummy, &dummy )) {
 +    len += 1;
 +  }
-+  if( ferror(f) ) {
++  if (ferror(f)) {
 +    err_log("Error reading from %s : %s\n", path, strerror(errno));
 +    goto error;
 +  }
-+  if( fseek(f, 0, SEEK_SET)) {
++  if (fseek(f, 0, SEEK_SET)) {
 +    err_log("Error resetting file position : %s\n", strerror(errno));
 +    goto error;
 +  }
-+  if( len < 1 ) {
++  if (len < 1) {
 +    err_log("Input file %s does not contain any entries\n", path);
 +    goto error;
 +  }
@@ -359,24 +359,24 @@ index 0000000000..91b2c361b6
 +  mr = (mem_range_t*)malloc(sizeof(mem_range_t) * len);
 +  alias_masks = (uint64_t*)malloc(sizeof(uint64_t) * len);
 +  idx = 0;
-+  if( fgets(buf, buf_bytes, f) == NULL ) {
++  if (fgets(buf, buf_bytes, f) == NULL) {
 +    err_log("Failed to read header row : %s\n", strerror(errno));
 +    goto error;
 +  }
-+  if( ferror(f) ) {
++  if (ferror(f)) {
 +    err_log("Error reading from %s : %s\n", path, strerror(errno));
 +    goto error;
 +  }
-+  while( 3 == fscanf(f, "0x%jx,0x%jx,0x%jx\n", &(mr[idx].start), &(mr[idx].end), &(alias_masks[idx]) ) ){
++  while (3 == fscanf(f, "0x%jx,0x%jx,0x%jx\n", &(mr[idx].start), &(mr[idx].end), &(alias_masks[idx]) ) ){
 +    const char* dummy_name = "Not restored by parser\n";
 +    memcpy(mr[idx].name, dummy_name, strlen(dummy_name));
 +    idx += 1;
 +  }
-+  if( ferror(f) ) {
++  if (ferror(f)) {
 +    err_log("Error reading from %s : %s\n", path, strerror(errno));
 +    goto error;
 +  }
-+  if( idx != len ) {
++  if (idx != len) {
 +    err_log("Expected to read %ju entries but got %ju\n", len, idx);
 +    goto error;
 +  }
@@ -390,17 +390,17 @@ index 0000000000..91b2c361b6
 +error:
 +  retval = -1;
 +  //only free on error, otherwise we return them in output arg
-+  if( mr ) {
++  if (mr) {
 +    free(mr);
 +  }
-+  if( alias_masks ) {
++  if (alias_masks) {
 +    free(alias_masks);
 +  }
 +cleanup:
 +  if(f) {
 +    fclose(f);
 +  }
-+  if( buf ) {
++  if (buf) {
 +    free(buf);
 +  }
 +  return retval;
@@ -532,7 +532,7 @@ index 0000000000..47595155aa
 +        close(pagemap_fd);
 +        return 1;
 +    }
-+    if( entry.pfn == 0) {
++    if (entry.pfn == 0) {
 +        printf("%s:%d entry.pfn == 0 for pid=%d, vaddr=0x%jx, are we root?\n",__FILE__,__LINE__, pid, vaddr);
 +        close(pagemap_fd);
 +        return 1;
@@ -585,13 +585,13 @@ index 0000000000..1908266433
 +#include <string.h>
 +
 +int _regexp_matches_to_mem_range(regmatch_t* matches, size_t matches_len, char* input_string, mem_range_t* result) {
-+    if( matches_len != 4 ) {
++    if (matches_len != 4) {
 +        err_log( "expected 4 matches but got %lu\n", matches_len);
 +        return -1;
 +    }
 +
-+    for( size_t i = 0; i < matches_len; i++) {
-+        if( matches[i].rm_so == -1 ) {
++    for (size_t i = 0; i < matches_len; i++) {
++        if (matches[i].rm_so == -1) {
 +            err_log( "entry for match %lu is invalid\n", i);
 +            return -1;
 +        }
@@ -604,10 +604,10 @@ index 0000000000..1908266433
 +            case 2: {
 +                //do hex string to uint64_t
 +                uint64_t v;
-+                if( do_stroul(input_string + m->rm_so, 16, &v)) {
++                if (do_stroul(input_string + m->rm_so, 16, &v)) {
 +                    err_log( "do_stroul failed on match group %lu\n", i);
 +                }
-+                if( i == 1) {
++                if (i == 1) {
 +                    result->start = v;
 +                } else {
 +                    result->end = v;
@@ -616,19 +616,19 @@ index 0000000000..1908266433
 +            break;
 +            case 3: {
 +                size_t match_len = m->rm_eo - m->rm_so - 1;
-+                if( input_string[m->rm_eo] == '\n') {
++                if (input_string[m->rm_eo] == '\n') {
 +                    match_len -= 1;
 +                }
-+                if( match_len > sizeof(result->name) ) {
++                if (match_len > sizeof(result->name)) {
 +                    err_log( "match to large: %ju\n", match_len);
 +                    return -1;
 +                }
 +                strncpy(result->name, input_string + m->rm_so, match_len);
 +                result->name[match_len] = '\0';
 +
-+                if( 0 == strcmp("System RAM", result->name)) {
++                if (0 == strcmp("System RAM", result->name)) {
 +										result->mt = MT_SYSTEM_RAM;
-+                } else if( 0 == strcmp("Reserved", result->name)) {
++                } else if (0 == strcmp("Reserved", result->name)) {
 +										result->mt = MT_RESERVED;
 +								} else {
 +										result->mt = MT_OTHER;
@@ -650,7 +650,7 @@ index 0000000000..1908266433
 +    const char* iomem_path = "/proc/iomem";
 +    printf("Opening iomem file at %s\n", iomem_path);
 +    FILE* iomem = fopen(iomem_path, "r");
-+    if( iomem == NULL ) {
++    if (iomem == NULL) {
 +        err_log( "failed to open %s : %s", iomem_path, strerror(errno));
 +        goto error;
 +
@@ -663,14 +663,14 @@ index 0000000000..1908266433
 +
 +    //iterate over file once to get max number of entries
 +    size_t results_buf_len = 0;
-+    while( fgets(line_buf, sizeof(line_buf), iomem) != NULL ) {
++    while (fgets(line_buf, sizeof(line_buf), iomem) != NULL) {
 +        results_buf_len += 1;
 +    }
-+    if( ferror(iomem)) {
++    if (ferror(iomem)) {
 +        err_log( "error reading from %s : %s", iomem_path, strerror(errno));
 +        goto error;
 +    }
-+    if( fseek(iomem, 0, SEEK_SET)) {
++    if (fseek(iomem, 0, SEEK_SET)) {
 +        err_log( "failed to reset stream to start\n");
 +        goto error;
 +    }
@@ -681,35 +681,35 @@ index 0000000000..1908266433
 +
 +
 +    //main loop over each line
-+    if( regcomp(&re, "^([0-9a-f]+)-([0-9a-f]+) : (.*)$", REG_EXTENDED)) {
++    if (regcomp(&re, "^([0-9a-f]+)-([0-9a-f]+) : (.*)$", REG_EXTENDED)) {
 +        err_log( "failed to parse static regexp, this should never happend\n");
 +        goto error;
 +    }
-+    while( fgets(line_buf, sizeof(line_buf), iomem) != NULL ) {
++    while (fgets(line_buf, sizeof(line_buf), iomem) != NULL) {
 +
 +        //in either of these cases our regexp did not match and we ignore the line
-+        if( regexec(&re, line_buf, groups_len, groups, 0) ) {
++        if (regexec(&re, line_buf, groups_len, groups, 0)) {
 +            continue;
 +        }
-+        if( groups[0].rm_so == -1 ) {
++        if (groups[0].rm_so == -1) {
 +            continue;
 +        }
 +        
 +        //regeexp matched, extract information
-+        if( _regexp_matches_to_mem_range(groups, groups_len, line_buf, results_buf + results_buf_next_idx)) {
++        if (_regexp_matches_to_mem_range(groups, groups_len, line_buf, results_buf + results_buf_next_idx)) {
 +            err_log( "regexp_matches_to_mem_range failed\n");
 +            goto error;
 +        }
 +        results_buf_next_idx += 1;
 +    }
 +    //check if we left the loop due to I/O error
-+    if( ferror(iomem)) {
++    if (ferror(iomem)) {
 +        err_log( "error reading from %s : %s", iomem_path, strerror(errno));
 +        goto error;
 +    }
 +
 +    //we overapproximated the size, resize to only hold the actually used elements
-+    if( results_buf_next_idx != results_buf_len ) {
++    if (results_buf_next_idx != results_buf_len) {
 +        *ranges = malloc(sizeof(mem_range_t) * results_buf_next_idx);
 +        *range_len = results_buf_next_idx;
 +        memcpy(*ranges, results_buf, results_buf_next_idx * sizeof(mem_range_t));
@@ -831,7 +831,7 @@ index 0000000000..b22e566bcc
 +}
 +
 +int wbinvd_ac(void) {
-+  if( kmod_fd < 0) {
++  if (kmod_fd < 0) {
 +    err_log("%s:%d: driver not openened\n", __FILE__, __LINE__);
 +    return -1;
 +  }
@@ -864,13 +864,13 @@ index 0000000000..b22e566bcc
 +        break;
 +      case 1:
 +        out_stats->reserved_pages += 1;
-+        if( err_on_access_fail ) {
++        if (err_on_access_fail) {
 +          return -1;
 +        }
 +        break;
 +      case 2:
 +        out_stats->map_failed += 1;
-+        if( err_on_access_fail ) {
++        if (err_on_access_fail) {
 +          return -1;
 +        }
 +        break;
@@ -912,7 +912,7 @@ index 0000000000..b22e566bcc
 +        break;
 +      case 1:
 +        out_stats->reserved_pages += 1;
-+        if( err_on_access_fail ) {
++        if (err_on_access_fail) {
 +          return -1;
 +        }
 +        break;
@@ -936,14 +936,14 @@ index 0000000000..b22e566bcc
 +}
 +
 +int open_kmod(void) {
-+  if( kmod_fd == - 1) {
++  if (kmod_fd == - 1) {
 +    kmod_fd = open("/dev/readalias_dev", O_RDWR);
 +  }
 +  return kmod_fd < 0 ? kmod_fd : 0;
 +}
 +
 +void close_kmod(void) {
-+  if( kmod_fd != - 1 ) {
++  if (kmod_fd != - 1) {
 +    close(kmod_fd);
 +    kmod_fd = - 1;
 +  }
@@ -986,13 +986,13 @@ index 0000000000..b22e566bcc
 +        break;
 +      case 1:
 +        out_stats->reserved_pages += 1;
-+        if( err_on_access_fail ) {
++        if (err_on_access_fail) {
 +          return -1;
 +        }
 +        break;
 +      case 2:
 +        out_stats->map_failed += 1;
-+        if( err_on_access_fail ) {
++        if (err_on_access_fail) {
 +          return -1;
 +        }
 +        break;
@@ -1031,31 +1031,31 @@ index 0000000000..b22e566bcc
 +        mxor[i] = m1[i] ^ m2[i];
 +    }
 +
-+    if( flush_ext(source_pa, msg_len, memcpy_cfg) ) {
++    if (flush_ext(source_pa, msg_len, memcpy_cfg)) {
 +        if(verbose) err_log("flush_range for 0x%jx failed\n", source_pa);
 +        return CHECK_ALIAS_ERR_ACCESS;
 +    }
 +
-+    if( memcpy_topa_ext(source_pa, m1, msg_len, memcpy_cfg) ) {
++    if (memcpy_topa_ext(source_pa, m1, msg_len, memcpy_cfg)) {
 +        if(verbose) err_log("memcpy_topa for 0x%jx failed\n", source_pa);
 +        return CHECK_ALIAS_ERR_ACCESS;
 +    }
 +
 +    //read alias_candidate_pa
-+    if( memcpy_frompa_ext(buf1, alias_candidate, msg_len, memcpy_cfg) ) {
++    if (memcpy_frompa_ext(buf1, alias_candidate, msg_len, memcpy_cfg)) {
 +        if(verbose) err_log("memcpy_frompa for 0x%jx failed\n", alias_candidate);
 +        return CHECK_ALIAS_ERR_ACCESS;
 +    }
 +
 +
 +    //write m2 to source_pa
-+    if( memcpy_topa_ext(source_pa, m2, msg_len, memcpy_cfg) ) {
++    if (memcpy_topa_ext(source_pa, m2, msg_len, memcpy_cfg)) {
 +        if(verbose) err_log("memcpy_topa for source_pa 0x%jx failed\n", source_pa);
 +        return CHECK_ALIAS_ERR_ACCESS;
 +    }
 +
 +    //read from target_pa
-+    if( memcpy_frompa_ext(buf2, alias_candidate, msg_len, memcpy_cfg) ) {
++    if (memcpy_frompa_ext(buf2, alias_candidate, msg_len, memcpy_cfg)) {
 +        if(verbose) err_log("memcpy_frompa for target_pa 0x%jx failed\n", alias_candidate);
 +        return CHECK_ALIAS_ERR_ACCESS;
 +    }
@@ -1087,7 +1087,7 @@ index 0000000000..b22e566bcc
 +    int found_matching_xor = 1;
 +    for(size_t i = 0; i < msg_len; i++) {
 +        bufxor[i] = buf1[i] ^ buf2[i];
-+        if( mxor[i] != bufxor[i]) {
++        if (mxor[i] != bufxor[i]) {
 +            found_matching_xor = 0;
 +        }
 +    }
@@ -1096,7 +1096,7 @@ index 0000000000..b22e566bcc
 +    _hexdump(bufxor, msg_len);
 +#endif
 +
-+    if( found_matching_xor ) {
++    if (found_matching_xor) {
 +        if(verbose) {
 +            uint64_t pa_xor = source_pa ^ alias_candidate;
 +            printf("Found alias for 0x%jx at 0x%jx! xor diff = 0x%jx\n", source_pa, alias_candidate, pa_xor);
@@ -1377,7 +1377,7 @@ index 7c87f45de7..d5b14c2920 100644
 +        //N.B: NOT and error (for now)
 +        return 0;
 +    }
-+    if( 1 != (n = fread(replay_data_buffer, replay_bytes, 1, replay_data_file))) {
++    if (1 != (n = fread(replay_data_buffer, replay_bytes, 1, replay_data_file))) {
 +        err_log("failed to read from replay data file : n=%d, strerror=%s\n", n, strerror(errno));
 +        goto error;;
 +    }
@@ -1454,7 +1454,7 @@ index 7c87f45de7..d5b14c2920 100644
 +        goto error;
 +    }
 +
-+    if( gctx_pa == 0 ) {
++    if (gctx_pa == 0) {
 +        if(badram_get_gctx(getpid(), &gctx_pa)) {
 +            err_log("badram_get_gctx failed\n");
 +            goto error;
@@ -1485,7 +1485,7 @@ index 7c87f45de7..d5b14c2920 100644
 +    gctx_dump_path = malloc(gctx_dump_path_max_len);
 +    {
 +        int n = snprintf(gctx_dump_path, gctx_dump_path_max_len, "%s/gctx-dump-%02ju.bin", get_dump_dir(), invocation_count);
-+        if( n < 0 || n > gctx_dump_path_max_len) {
++        if (n < 0 || n > gctx_dump_path_max_len) {
 +            err_log("snprintf failed\n");
 +            goto error;
 +        }
@@ -1495,7 +1495,7 @@ index 7c87f45de7..d5b14c2920 100644
 +        err_log("failed to create dump file %s\n", gctx_dump_path);
 +        goto error;
 +    }
-+    if( 1 != fwrite(gctx_buffer, gctx_bytes, 1, gctx_dump_file)) {
++    if (1 != fwrite(gctx_buffer, gctx_bytes, 1, gctx_dump_file)) {
 +        err_log("failed to write gctx content to file\n");
 +        goto error;
 +    }

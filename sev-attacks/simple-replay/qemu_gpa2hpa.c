@@ -26,12 +26,12 @@ int parse_gpa2hpa_response(char* response, uint64_t* out_hpa) {
   regmatch_t groups[groups_len];
 
   char regex[] = R"(^\{"return": "Host physical address for (0x[0-9a-f]+) .*(0x[0-9a-f]+))";
-  if( regcomp(&re, regex, REG_EXTENDED)) {
+  if (regcomp(&re, regex, REG_EXTENDED)) {
     err_log( "failed to parse static regexp, this should never happend\n");
     regfree(&re);
     return -1;
   }
-  if( regexec(&re, response, groups_len, groups, 0) ) {
+  if (regexec(&re, response, groups_len, groups, 0)) {
     err_log("failed to match regexp\n");
     regfree(&re);
     return -1;
@@ -39,7 +39,7 @@ int parse_gpa2hpa_response(char* response, uint64_t* out_hpa) {
 
   //idx 0 : whole match, idx 1: gpa: idx 2 hpa
   uint64_t hpa;
-  if( groups[2].rm_so == - 1 ) {
+  if (groups[2].rm_so == - 1) {
     err_log("did not get match grou group 2\n");
     return -1;
   }
@@ -48,7 +48,7 @@ int parse_gpa2hpa_response(char* response, uint64_t* out_hpa) {
   strncpy(match, response + groups[2].rm_so, match_len);
   match[match_len] = '\0';
   //printf("match is: rm_so=%d, rm_eo=%d, string=%s\n", groups[2].rm_so, groups[2].rm_eo, match);
-  if( do_stroul(match, 16, &hpa)) {
+  if (do_stroul(match, 16, &hpa)) {
     err_log("failed to parse to uint64_t\n");
     regfree(&re);
     free(match);
@@ -69,7 +69,7 @@ int qemu_gpa_to_hpa(uint64_t gpa, char* qmp_ip, uint16_t port, uint64_t* out_hpa
   struct sockaddr_in server_address;
 
 
-  if( (socket_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0 ) {
+  if ((socket_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
     err_log("failed to connect to qmp socket: %s", strerror(errno))
     return -1;
   }
@@ -105,7 +105,7 @@ int qemu_gpa_to_hpa(uint64_t gpa, char* qmp_ip, uint16_t port, uint64_t* out_hpa
 
   //1) read "hello message"
   int read_bytes = read(socket_fd, buf, buf_bytes);
-  if( -1 ==read_bytes ) {
+  if (-1 ==read_bytes) {
     err_log("failed to read hello msg from qmp :%s\n", strerror(errno));
     goto error;
   }
@@ -116,7 +116,7 @@ int qemu_gpa_to_hpa(uint64_t gpa, char* qmp_ip, uint16_t port, uint64_t* out_hpa
   //printf("Sending activate cmd\n");
   const char* qmp_cmd_activate = "{ 'execute': 'qmp_capabilities' }";
   int send_bytes = send(socket_fd, qmp_cmd_activate, strlen(qmp_cmd_activate), 0);
-  if( -1 == send_bytes || strlen(qmp_cmd_activate) != (unsigned long)send_bytes) {
+  if (-1 == send_bytes || strlen(qmp_cmd_activate) != (unsigned long)send_bytes) {
     err_log("failed to send qmp activate cmd : %s", strerror(errno));
     goto error;
   }
@@ -124,7 +124,7 @@ int qemu_gpa_to_hpa(uint64_t gpa, char* qmp_ip, uint16_t port, uint64_t* out_hpa
 
   //3) read ack
   read_bytes = read(socket_fd, buf, buf_bytes);
-  if( -1 ==read_bytes ) {
+  if (-1 ==read_bytes) {
     err_log("failed to read ack msg from qmp : %s\n", strerror(errno));
     goto error;
   }
@@ -134,19 +134,19 @@ int qemu_gpa_to_hpa(uint64_t gpa, char* qmp_ip, uint16_t port, uint64_t* out_hpa
   //4) send gpa2hpa command
   //printf("Sending gpa2hpa command\n");
   int n = snprintf(qmp_cmd_gpa2hpa, qmp_cmd_gpa2hpa_maxlen, "{'execute': 'human-monitor-command', 'arguments': {'command-line': 'gpa2hpa 0x%jx'}}", gpa);
-  if( n == -1 || (size_t)n >= qmp_cmd_gpa2hpa_maxlen ) {
+  if (n == -1 || (size_t)n >= qmp_cmd_gpa2hpa_maxlen) {
     err_log("failed to craft qmp activate command: snprintf retunred %d : %s\n",n, strerror(errno));
     goto error;
   }
   send_bytes = send(socket_fd, qmp_cmd_gpa2hpa, strlen(qmp_cmd_gpa2hpa), 0);
-  if( -1 == send_bytes || strlen(qmp_cmd_gpa2hpa) != (unsigned long)send_bytes) {
+  if (-1 == send_bytes || strlen(qmp_cmd_gpa2hpa) != (unsigned long)send_bytes) {
     err_log("failed to send qmp gpa2hpa command : %s", strerror(errno));
     goto error;
   }
 
   //5) read result
   read_bytes = read(socket_fd, buf, buf_bytes);
-  if( -1 ==read_bytes ) {
+  if (-1 ==read_bytes) {
     err_log("failed to read ack msg from qmp : %s\n", strerror(errno));
     goto error;
   }
@@ -155,7 +155,7 @@ int qemu_gpa_to_hpa(uint64_t gpa, char* qmp_ip, uint16_t port, uint64_t* out_hpa
 
   //printf("parsing hpa\n");
   uint64_t hpa;
-  if( parse_gpa2hpa_response((char*)buf, &hpa) ) {
+  if (parse_gpa2hpa_response((char*)buf, &hpa)) {
     err_log("failed to parse response : %s\n", strerror(errno));
     goto error;
   }
@@ -167,7 +167,7 @@ int qemu_gpa_to_hpa(uint64_t gpa, char* qmp_ip, uint16_t port, uint64_t* out_hpa
 error:
     ret = - 1;
 clenaup:
-  if( socket_fd != -1 ) {
+  if (socket_fd != -1) {
     close(socket_fd);
   }
   if(buf) {
@@ -178,7 +178,7 @@ clenaup:
 
 /*int main() {
   uint64_t hpa;
-  if( qemu_gpa_to_hpa(0x6d0a3000, "127.0.0.1", 4444, &hpa) ) {
+  if (qemu_gpa_to_hpa(0x6d0a3000, "127.0.0.1", 4444, &hpa)) {
     printf("qemu_gpa2hpa failed\n");
     return -1;
   }

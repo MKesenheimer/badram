@@ -53,7 +53,7 @@ int parse_csv(char* path, mem_range_t** out_mr, uint64_t** out_alias_masks, size
     err_log("Error reading from %s : %s\n", path, strerror(errno));
     goto error;
   }
-  while(  3 == fscanf(f, "0x%jx,0x%jx,0x%jx\n", &dummy, &dummy, &dummy )) {
+  while ( 3 == fscanf(f, "0x%jx,0x%jx,0x%jx\n", &dummy, &dummy, &dummy )) {
     len += 1;
   }
   if (ferror(f)) {
@@ -80,7 +80,7 @@ int parse_csv(char* path, mem_range_t** out_mr, uint64_t** out_alias_masks, size
     err_log("Error reading from %s : %s\n", path, strerror(errno));
     goto error;
   }
-  while( 3 == fscanf(f, "0x%jx,0x%jx,0x%jx\n", &(mr[idx].start), &(mr[idx].end), &(alias_masks[idx]) ) ){
+  while (3 == fscanf(f, "0x%jx,0x%jx,0x%jx\n", &(mr[idx].start), &(mr[idx].end), &(alias_masks[idx]) ) ){
     char* dummy_name = "Not restored by parser\n";
     memcpy(mr[idx].name, dummy_name, strlen(dummy_name));
     idx += 1;

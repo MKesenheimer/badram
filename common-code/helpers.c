@@ -45,7 +45,7 @@ int do_stroul(char *str, int base, uint64_t *result) {
 
 int get_alias(uint64_t pa, mem_range_t* mrs, uint64_t* alias_masks, size_t len, uint64_t* out_alias) {
   for(size_t i = 0; i < len; i++) {
-    if( (pa >= mrs[i].start) && (pa < mrs[i].end) ) {
+    if ((pa >= mrs[i].start) && (pa < mrs[i].end)) {
       *out_alias = pa ^ alias_masks[i];
       return 0;
     }

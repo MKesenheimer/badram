@@ -39,7 +39,7 @@ int run(uint64_t rmp_start, uint64_t rmp_end, char* dump_path) {
   uint8_t* buf2 = NULL;
   page_stats_t stats;
   FILE* dump_file = stdout;
-  if( dump_path ) {
+  if (dump_path) {
     dump_file = fopen(dump_path, "w");
     if(!dump_file) {
       err_log("failed to create file %s for writing : %s\n", dump_path, strerror(errno))
@@ -47,12 +47,12 @@ int run(uint64_t rmp_start, uint64_t rmp_end, char* dump_path) {
     }
   } 
 
-  if( open_kmod() ) {
+  if (open_kmod()) {
     err_log("failed to open driver\n");
     goto error;
   }
 
-  if( memcpy_frompa(rmp_buf,rmp_start, rmp_buf_bytes , &stats, true)) {
+  if (memcpy_frompa(rmp_buf,rmp_start, rmp_buf_bytes , &stats, true)) {
     err_log("direct read of rmp at 0x%jx failed\n", rmp_start) ;
     goto error;
   }
@@ -68,7 +68,7 @@ int run(uint64_t rmp_start, uint64_t rmp_end, char* dump_path) {
   uint64_t pa_last_rmp_page = rmp_end - 4096;
   uint64_t alias_last_rmp_page;
   printf("Lat RMP page is at 0x%jx\n", pa_last_rmp_page);
-  if( get_alias(pa_last_rmp_page, alias_data.mrs , alias_data.alias_masks , alias_data.len , &alias_last_rmp_page )) {
+  if (get_alias(pa_last_rmp_page, alias_data.mrs , alias_data.alias_masks , alias_data.len , &alias_last_rmp_page )) {
     err_log("failed to get alias for last rmp page at 0x%jx\n", pa_last_rmp_page);
     goto error;
   }
@@ -80,15 +80,15 @@ int run(uint64_t rmp_start, uint64_t rmp_end, char* dump_path) {
   memcpy(buf1, rmp+(rmp_len - 256), 4096);
   ((rmp_entry_t*)buf1)[0].info.gpa = 0xdedbeef;
   printf("overwriting gpa of first entry on last page via alias 0x%jx\n", alias_last_rmp_page);
-  if( wbinvd_ac() ) {
+  if (wbinvd_ac()) {
     err_log("flush failed\n");
     goto error;
   }
-  if( memcpy_topa(alias_last_rmp_page, buf1 , 4096 ,&stats,true )) {
+  if (memcpy_topa(alias_last_rmp_page, buf1 , 4096 ,&stats,true )) {
     err_log("failed to write to last rmp page at 0x%jx via alias 0x%jx\n", pa_last_rmp_page, alias_last_rmp_page);  
     goto error;
   }
-  if( wbinvd_ac() ) {
+  if (wbinvd_ac()) {
     err_log("flush failed\n");
     goto error;
   }
@@ -96,7 +96,7 @@ int run(uint64_t rmp_start, uint64_t rmp_end, char* dump_path) {
   //read last rmp page through orig addr
   printf("Reading again through original address 0x%jx\n", pa_last_rmp_page);
   buf2 = malloc(4096);
-  if( memcpy_frompa(buf2, pa_last_rmp_page , 4096 ,&stats , true )) {
+  if (memcpy_frompa(buf2, pa_last_rmp_page , 4096 ,&stats , true )) {
     err_log("failed to read last rmp page through orig addr 0x%jx\n", pa_last_rmp_page);
     goto error;
   }
@@ -121,16 +121,16 @@ int run(uint64_t rmp_start, uint64_t rmp_end, char* dump_path) {
 error:
   ret = -1;
 cleanup:
-  if( rmp_buf ) {
+  if (rmp_buf) {
     free(rmp_buf);
   }
-  if( buf1 ) {
+  if (buf1) {
     free(buf1);
   }
-  if( buf2 ) {
+  if (buf2) {
     free(buf2);
   }
-  if( dump_file != NULL && dump_file != stdout) {
+  if (dump_file != NULL && dump_file != stdout) {
     fclose(dump_file);
   }
   close_kmod();
@@ -138,7 +138,7 @@ cleanup:
 }
 
 int main(int argc, char** argv) {
-  if( argc != 4) {
+  if (argc != 4) {
     printf("Usage: read_rmp <pa of rmp start> <pa of rmp end> {\"stdout\",<path to file>}\n");
     return -1;
   }
@@ -154,7 +154,7 @@ int main(int argc, char** argv) {
 
   char* dump_path = NULL;
   char* stdout_flag = "stdout";
-  if( 0 != memcmp(argv[3], stdout_flag, strlen(stdout_flag))) {
+  if (0 != memcmp(argv[3], stdout_flag, strlen(stdout_flag))) {
     dump_path = argv[3];
   } 
   return run(rmp_start, rmp_end, dump_path);  

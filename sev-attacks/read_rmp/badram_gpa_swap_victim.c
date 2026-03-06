@@ -40,7 +40,7 @@ int main(int argc, char **argv)
         perror("mmap");
         exit(EXIT_FAILURE);
     }
-    if( ( (uint64_t)mem_buffer % 4096) !=0 ) {
+    if (( (uint64_t)mem_buffer % 4096) !=0) {
         printf("mem_buffer not correctly aligned\n");
         exit(EXIT_FAILURE);
     }

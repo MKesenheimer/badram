@@ -56,9 +56,9 @@ struct arguments {
  * @returns MM_INVALID on error, else valid enum value
 */
 enum main_mode main_mode_from_str(char* c) {
-	if( 0 == memcmp(c, "DUMP", strlen("DUMP"))) {
+	if (0 == memcmp(c, "DUMP", strlen("DUMP"))) {
 		return MM_DUMP;
-	} else if( 0 == memcmp(c, "REPLAY", strlen("REPLAY"))) {
+	} else if (0 == memcmp(c, "REPLAY", strlen("REPLAY"))) {
 		return MM_REPLAY;
 	}
 	return MM_INVALID;
@@ -113,7 +113,7 @@ int write_to_target(struct app app) {
 	}
 
 	buffer = (uint8_t*)malloc(app.args.target_bytes);
-	if( 1 != fread(buffer, target_bytes, 1, f)) {
+	if (1 != fread(buffer, target_bytes, 1, f)) {
 		err_log("failed to 0x%jx bytes from %s starting at offset 0x%jx : %s\n",
 		target_bytes, app.args.file_path, app.args.file_offset, strerror(errno));
 		goto error;
@@ -204,7 +204,7 @@ int dump_target(struct app app) {
 		err_log("failed to create file %s : %s\n", app.args.file_path, strerror(errno));
 		goto error;
 	}
-	if( 1 != fwrite(buffer, target_bytes , 1 , f )) {
+	if (1 != fwrite(buffer, target_bytes , 1 , f )) {
 		err_log("failed to write tmr content to file : %s", strerror(errno));
 		goto error;
 	}
@@ -231,12 +231,12 @@ int run(struct arguments args) {
   uint64_t* alias_masks = NULL;
   size_t mrs_len;
 
-	if(open_kmod() ) {
+	if(open_kmod()) {
 		err_log("failed to open readalias kernel module\n");
 		goto error;
 	}
 
-  if( parse_csv(args.alias_file_path, &mrs, &alias_masks, &mrs_len) ) {
+  if (parse_csv(args.alias_file_path, &mrs, &alias_masks, &mrs_len)) {
       err_log("failed to parse memory range and aliases from %s\n", args.alias_file_path);
       return -1;
   }
@@ -319,7 +319,7 @@ static error_t parse_opt(int key, char* arg, struct argp_state* state) {
 			break;
 		case 6: {
 				enum main_mode m = main_mode_from_str(arg);
-				if(m == MM_INVALID ) {
+				if(m == MM_INVALID) {
 					err_log("invalid mode value \"%s\"", arg);
 					return ARGP_ERR_UNKNOWN;
 				}
@@ -328,7 +328,7 @@ static error_t parse_opt(int key, char* arg, struct argp_state* state) {
 			break;
 		case ARGP_KEY_END:
 			//check args that need to be present in all modes
-			if( (args->alias_file_path == NULL) ||
+			if ((args->alias_file_path == NULL) ||
 				(args->target_pa == 0) ||
 				(args->target_bytes ==0) ||
 				(args->file_path == NULL) ||

@@ -14,7 +14,7 @@ index 0e0c8edf079d..6ca8acb801c3 100644
 @@ -5507,7 +5507,7 @@ static long kvm_dev_ioctl(struct file *filp,
  
  				//copy params and locate vm
- 				if( copy_from_user(&params, argp, sizeof(params))) {
+ 				if (copy_from_user(&params, argp, sizeof(params))) {
 -					printk("%s:%d copy_to_user failed\n", __FILE__, __LINE__);
 +					printk("%s:%d copy_from_user failed\n", __FILE__, __LINE__);
  					return -EINVAL;
@@ -32,7 +32,7 @@ index 0e0c8edf079d..6ca8acb801c3 100644
 @@ -5551,7 +5551,7 @@ static long kvm_dev_ioctl(struct file *filp,
  
  				//copy params and locate vm
- 				if( copy_from_user(&params, argp, sizeof(params))) {
+ 				if (copy_from_user(&params, argp, sizeof(params))) {
 -					printk("%s:%d copy_to_user failed\n", __FILE__, __LINE__);
 +					printk("%s:%d copy_from_user failed\n", __FILE__, __LINE__);
  					return -EINVAL;
@@ -41,7 +41,7 @@ index 0e0c8edf079d..6ca8acb801c3 100644
 @@ -5604,7 +5604,7 @@ static long kvm_dev_ioctl(struct file *filp,
  				void __user *argp = (void __user *)arg;
  
- 				if( copy_from_user(&params, argp, sizeof(params))) {
+ 				if (copy_from_user(&params, argp, sizeof(params))) {
 -					printk("%s:%d copy_to_user failed\n", __FILE__, __LINE__);
 +					printk("%s:%d copy_from_user failed\n", __FILE__, __LINE__);
  					return -EINVAL;

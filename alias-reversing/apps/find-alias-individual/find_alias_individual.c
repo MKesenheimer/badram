@@ -48,15 +48,15 @@ int store_valid_aliases(char* path, struct mem_range_pa* source , uint64_t*  ali
     //count valid entries
     size_t valid_entries = 0;
     for(size_t i = 0; i < len; i++) {
-        if( alias_pa[i] != 0 ) {
+        if (alias_pa[i] != 0) {
             valid_entries += 1;
         }
     }
     //compute alias from source_pa and alias_pa and filter valid entries into new array
     mem_range_t* mr_with_alias = malloc(sizeof(mem_range_t) * valid_entries);
     uint64_t* alias_masks = malloc(sizeof(uint64_t) * valid_entries);
-    for( size_t next_idx=0, i = 0; i < len; i++ ) {
-        if( alias_pa[i] != 0 ) {
+    for (size_t next_idx=0, i = 0; i < len; i++) {
+        if (alias_pa[i] != 0) {
             mr_with_alias[next_idx] = source[i].mr;
             alias_masks[next_idx] = source[i].pa ^ alias_pa[i];
             next_idx += 1;
@@ -87,24 +87,24 @@ int find_alias_no_scrambling(uint64_t source_pa, uint64_t* out_alias, mem_range_
 
     page_stats_t tmp;
     //write m1 to source_pa
-    if( clflush_range(source_pa, msg_len, &tmp, true) ) {
+    if (clflush_range(source_pa, msg_len, &tmp, true)) {
         err_log("flush_range for 0x%jx failed\n", source_pa)
         return -1;
     }
 
     //write marker value only once. Without scramblign we can simple search for another occurence
     //of this value
-    if( memcpy_topa(source_pa, m1, msg_len, &tmp, true) ) {
+    if (memcpy_topa(source_pa, m1, msg_len, &tmp, true)) {
         err_log("memcpy_topa for 0x%jx failed\n", source_pa);
         return -1;
     }
-    if( wbinvd_ac() ) {
+    if (wbinvd_ac()) {
         err_log("wbinvd_ac() failed");
         return -1;
     }
 
     size_t total_memory_bytes = 0;
-    for( size_t i = 0; i < sys_ram_len; i++) {
+    for (size_t i = 0; i < sys_ram_len; i++) {
         total_memory_bytes += sys_ram[i].end - sys_ram[i].start;
     }
     size_t total_processed_bytes = 0;
@@ -118,7 +118,7 @@ int find_alias_no_scrambling(uint64_t source_pa, uint64_t* out_alias, mem_range_
         .err_on_access_fail = true,
         .flush_method = FM_CLFLUSH,
     };
-    for( size_t sys_ram_idx = 0; sys_ram_idx < sys_ram_len; sys_ram_idx++) {
+    for (size_t sys_ram_idx = 0; sys_ram_idx < sys_ram_len; sys_ram_idx++) {
         mem_range_t* mr = sys_ram+sys_ram_idx;
         printf("[%ju/%ju[: Searching mem range %s [0x%jx,0x%jx[ (%.2f GiB)\n",
         sys_ram_idx, sys_ram_len, mr->name, mr->start, mr->end, (double)(mr->end - mr->start)/(1<<30));
@@ -127,19 +127,19 @@ int find_alias_no_scrambling(uint64_t source_pa, uint64_t* out_alias, mem_range_
             aligned_start += (4096 - (mr->start % 4096));
         }
         printf("aligned_start = 0x%jx\n", aligned_start);
-        for( uint64_t alias_candidate_pa = aligned_start; alias_candidate_pa < mr->end; alias_candidate_pa += 4096) {
+        for (uint64_t alias_candidate_pa = aligned_start; alias_candidate_pa < mr->end; alias_candidate_pa += 4096) {
             //printf("doing pa = 0x%jx\n", target_pa);
-            if( (total_processed_bytes % print_progress_interval) == print_progress_interval) {
+            if ((total_processed_bytes % print_progress_interval) == print_progress_interval) {
                 printf("Total progress %0.2f\n", (double)total_processed_bytes/total_memory_bytes);
             }
             total_processed_bytes += 4096;
-            if( alias_candidate_pa == source_pa) {
+            if (alias_candidate_pa == source_pa) {
             continue;
             }
 
 
             //read alias_candidate_pa
-            if( memcpy_frompa_ext(buf1, alias_candidate_pa, msg_len, &memcpy_cfg) ) {
+            if (memcpy_frompa_ext(buf1, alias_candidate_pa, msg_len, &memcpy_cfg)) {
                 err_log("memcpy_frompa for 0x%jx failed\n", alias_candidate_pa);
                 //return -1;
                 continue;
@@ -155,7 +155,7 @@ int find_alias_no_scrambling(uint64_t source_pa, uint64_t* out_alias, mem_range_
 #endif
            
 
-            if( 0 == memcmp(m1, buf1, msg_len) ) {
+            if (0 == memcmp(m1, buf1, msg_len)) {
                 uint64_t pa_xor = source_pa ^ alias_candidate_pa;
                 printf("Found alias for 0x%jx at 0x%jx! xor diff = 0x%jx\n", source_pa, alias_candidate_pa, pa_xor);
                 printf("buf1: ");
@@ -206,7 +206,7 @@ int find_alias_scrambling(uint64_t source_pa, uint64_t* out_alias, mem_range_t* 
     }
 
     size_t total_memory_bytes = 0;
-    for( size_t i = 0; i < sys_ram_len; i++) {
+    for (size_t i = 0; i < sys_ram_len; i++) {
         total_memory_bytes += sys_ram[i].end - sys_ram[i].start;
     }
     size_t total_processed_bytes = 0;
@@ -214,7 +214,7 @@ int find_alias_scrambling(uint64_t source_pa, uint64_t* out_alias, mem_range_t* 
   
   
     page_stats_t total_page_stats = {0};
-    for( size_t sys_ram_idx = 0; sys_ram_idx < sys_ram_len; sys_ram_idx++) {
+    for (size_t sys_ram_idx = 0; sys_ram_idx < sys_ram_len; sys_ram_idx++) {
         mem_range_t* mr = sys_ram+sys_ram_idx;
         printf("[%ju/%ju[: Searching mem range %s [0x%jx,0x%jx[ (%.2f GiB)\n",
         sys_ram_idx, sys_ram_len, mr->name, mr->start, mr->end, (double)(mr->end - mr->start)/(1<<30));
@@ -230,34 +230,34 @@ int find_alias_scrambling(uint64_t source_pa, uint64_t* out_alias, mem_range_t* 
             aligned_start += (4096 - (mr->start % 4096));
         }
         printf("aligned_start = 0x%jx\n", aligned_start);
-        for( uint64_t alias_candidate_pa = aligned_start; alias_candidate_pa < mr->end; alias_candidate_pa += 4096) {
+        for (uint64_t alias_candidate_pa = aligned_start; alias_candidate_pa < mr->end; alias_candidate_pa += 4096) {
             //printf("doing pa = 0x%jx\n", target_pa);
-            if( (total_processed_bytes % print_progress_interval) == print_progress_interval) {
+            if ((total_processed_bytes % print_progress_interval) == print_progress_interval) {
                 printf("Total progress %0.2f\n", (double)total_processed_bytes/total_memory_bytes);
             }
             total_processed_bytes += 4096;
-            if( alias_candidate_pa == source_pa) {
+            if (alias_candidate_pa == source_pa) {
             continue;
             }
 
             //write m1 to source_pa
-            if( clflush_range(alias_candidate_pa, msg_len, &local_page_stats, true) ) {
+            if (clflush_range(alias_candidate_pa, msg_len, &local_page_stats, true)) {
                 err_log("flush_range for 0x%jx failed\n", alias_candidate_pa)
                 //return -1;
                 continue;
             }
-            if( memcpy_topa_ext(source_pa, m1, msg_len, &memcpy_cfg) ) {
+            if (memcpy_topa_ext(source_pa, m1, msg_len, &memcpy_cfg)) {
                 err_log("memcpy_topa for 0x%jx failed\n", source_pa);
                 //return -1;
                 continue;
             }
 
-            if( memcpy_frompa_ext(buf1, alias_candidate_pa, msg_len, &memcpy_cfg) ) {
+            if (memcpy_frompa_ext(buf1, alias_candidate_pa, msg_len, &memcpy_cfg)) {
                 err_log("memcpy_frompa for 0x%jx failed\n", alias_candidate_pa);
                 //return -1;
                 continue;
             }
-            if( clflush_range(alias_candidate_pa, msg_len, &local_page_stats, true) ) {
+            if (clflush_range(alias_candidate_pa, msg_len, &local_page_stats, true)) {
                 err_log("flush_range for target_pa 0x%jx failed\n", alias_candidate_pa);
                 //return -1;
                 continue;
@@ -265,19 +265,19 @@ int find_alias_scrambling(uint64_t source_pa, uint64_t* out_alias, mem_range_t* 
 
 
             //write m2 to source_pa
-            if( memcpy_topa_ext(source_pa, m2, msg_len, &memcpy_cfg) ) {
+            if (memcpy_topa_ext(source_pa, m2, msg_len, &memcpy_cfg)) {
                 err_log("memcpy_topa for source_pa 0x%jx failed\n", source_pa);
                 //return -1;
                 continue;
             }
-            if( clflush_range(source_pa, msg_len, &local_page_stats, true) ) {
+            if (clflush_range(source_pa, msg_len, &local_page_stats, true)) {
                 err_log("flush_range for source_pa 0x%jx failed\n", source_pa);
                 //return -1;
                 continue;
             }
 
             //read from target_pa
-            if( memcpy_frompa_ext(buf2, alias_candidate_pa, msg_len, &memcpy_cfg) ) {
+            if (memcpy_frompa_ext(buf2, alias_candidate_pa, msg_len, &memcpy_cfg)) {
                 err_log("memcpy_frompa for target_pa 0x%jx failed\n", alias_candidate_pa);
                 continue;
             }
@@ -309,7 +309,7 @@ int find_alias_scrambling(uint64_t source_pa, uint64_t* out_alias, mem_range_t* 
             int found_matching_xor = 1;
             for(size_t i = 0; i < msg_len; i++) {
                 bufxor[i] = buf1[i] ^ buf2[i];
-                if( mxor[i] != bufxor[i]) {
+                if (mxor[i] != bufxor[i]) {
                     found_matching_xor = 0;
                 }
             }
@@ -318,7 +318,7 @@ int find_alias_scrambling(uint64_t source_pa, uint64_t* out_alias, mem_range_t* 
             hexdump(bufxor, msg_len);
 #endif
 
-            if( found_matching_xor ) {
+            if (found_matching_xor) {
                 uint64_t pa_xor = source_pa ^ alias_candidate_pa;
                 printf("Found alias for 0x%jx at 0x%jx! xor diff = 0x%jx\n", source_pa, alias_candidate_pa, pa_xor);
                 printf("buf1: ");
@@ -361,7 +361,7 @@ int find_alias_scrambling(uint64_t source_pa, uint64_t* out_alias, mem_range_t* 
  */
 bool is_in_mem_ranges(uint64_t addr, mem_range_t* mem_ranges, size_t mem_ranges_len) {
     for (size_t i = 0; i < mem_ranges_len; i++) {
-        if( addr >= mem_ranges[i].start && addr < mem_ranges[i].end) {
+        if (addr >= mem_ranges[i].start && addr < mem_ranges[i].end) {
             return true;
         }
     }
@@ -383,9 +383,9 @@ static int find_accessible_pa_in_mem_range(mem_range_t* mr, uint64_t* out_pa, bo
         .flush_method = FM_NONE,
         .out_stats = {0},
     };
-    for( uint64_t candidate = aligned_start; candidate < mr->end; candidate += 4096) {
+    for (uint64_t candidate = aligned_start; candidate < mr->end; candidate += 4096) {
         char buf[64];
-        if( memcpy_frompa_ext(buf, candidate, sizeof(buf), &cfg)) {
+        if (memcpy_frompa_ext(buf, candidate, sizeof(buf), &cfg)) {
             continue;
         }
         *out_pa = candidate;
@@ -406,39 +406,39 @@ static int find_accessible_pa_in_mem_range(mem_range_t* mr, uint64_t* out_pa, bo
 int parse_source_pa_from_csv(char* file_path, uint64_t** out_source_pa, size_t* out_source_pa_len) {
 
     FILE* csv_file = fopen(file_path, "r");
-    if( !csv_file ) {
+    if (!csv_file) {
         err_log("failed to open %s : %s", file_path, strerror(errno));
         goto error;
     }
 
     char line_buf[256];
     *out_source_pa_len = 0;
-    while( fgets(line_buf, sizeof(line_buf), csv_file) != NULL ) {
+    while (fgets(line_buf, sizeof(line_buf), csv_file) != NULL) {
         uint64_t tmp;
-        if( do_stroul(line_buf, 0 , &tmp )) {
+        if (do_stroul(line_buf, 0 , &tmp )) {
             continue;
         }
         *out_source_pa_len += 1;
     }
-    if( ferror(csv_file)) {
+    if (ferror(csv_file)) {
         err_log( "error reading from %s : %s", file_path, strerror(errno));
         goto error;
     }
-    if( fseek(csv_file, 0, SEEK_SET)) {
+    if (fseek(csv_file, 0, SEEK_SET)) {
         err_log("failed to reset file position to 0\n");
         goto error;
     }
 
     *out_source_pa = malloc(sizeof(uint64_t) * (*out_source_pa_len) );
     size_t next_idx = 0;
-    while( fgets(line_buf, sizeof(line_buf), csv_file) != NULL ) {
-        if( do_stroul(line_buf, 0 , *out_source_pa+next_idx)) {
+    while (fgets(line_buf, sizeof(line_buf), csv_file) != NULL) {
+        if (do_stroul(line_buf, 0 , *out_source_pa+next_idx)) {
             err_log("failed to parse '%s' to uint64_t : %s\n", line_buf, strerror(errno));
             goto error;
         }
         next_idx += 1;
     }
-    if( ferror(csv_file)) {
+    if (ferror(csv_file)) {
         err_log( "error reading from %s : %s", file_path, strerror(errno));
         goto error;
     }    
@@ -448,7 +448,7 @@ int parse_source_pa_from_csv(char* file_path, uint64_t** out_source_pa, size_t* 
 error:
     ret = -1;
 cleanup:
-    if( csv_file ) {
+    if (csv_file) {
         fclose(csv_file);
     }
     return ret;
@@ -460,7 +460,7 @@ cleanup:
 */
 static int pa_to_mr(uint64_t pa, mem_range_t* mr, size_t mr_len) {
     for(size_t i =0; i < mr_len; i++) {
-        if( (pa >= mr[i].start) && (pa < mr[i].end)) {
+        if ((pa >= mr[i].start) && (pa < mr[i].end)) {
             return i;
         }
     }
@@ -490,29 +490,29 @@ int parse_cli_flags(int argc, char** argv, struct cli_flags* out_cli_flags) {
     const char* common_access_reserved_flag = "--access-reserved";
     int idx = 0;
     out_cli_flags->output_path = "aliases.csv";
-    while( idx < argc ) {
-        if( 0 == memcmp(common_access_reserved_flag, argv[idx], strlen(common_access_reserved_flag))) {
+    while (idx < argc) {
+        if (0 == memcmp(common_access_reserved_flag, argv[idx], strlen(common_access_reserved_flag))) {
             out_cli_flags->access_reserved = true;
             idx += 1;
-        } else if( 0 == memcmp(verb_find_source_pa_arg, argv[idx], strlen(verb_find_source_pa_arg))) {
-            if( (idx+1) >= argc ) {
+        } else if (0 == memcmp(verb_find_source_pa_arg, argv[idx], strlen(verb_find_source_pa_arg))) {
+            if ((idx+1) >= argc) {
                 printf("Missing value for \"%s\"\n", verb_find_source_pa_arg);
                 return -1;
             }
             out_cli_flags->source_pa_path = argv[idx+1];
             idx += 2;
         } else if(0 == memcmp(common_output_path, argv[idx], strlen(common_output_path))) {
-            if( (idx+1) >= argc ) {
+            if ((idx+1) >= argc) {
                 printf("Missing value for \"%s\"\n", verb_find_source_pa_arg);
                 return -1;
             }
             out_cli_flags->output_path = argv[idx+1];
             idx += 2;
-        } else if( 0 == memcmp(verb_find_no_scrambling_flag, argv[idx], strlen(verb_find_no_scrambling_flag))) {
+        } else if (0 == memcmp(verb_find_no_scrambling_flag, argv[idx], strlen(verb_find_no_scrambling_flag))) {
             out_cli_flags->no_scrambling = true;
             idx += 1;
         } else if(0 == memcmp( verb_find_memrange_arg, argv[idx], strlen(common_output_path))) {
-            if( (idx+1) >= argc ) {
+            if ((idx+1) >= argc) {
                 printf("Missing value for \"%s\"\n", verb_find_source_pa_arg);
                 return -1;
             }
@@ -559,7 +559,7 @@ int parse_and_print_memory_layout(struct mem_layout* out_mem_layout, bool access
     mem_range_t* alias_candidate_ranges = NULL;
 
     //parse list of all memory ranges from /proc/iomem
-    if( parse_mem_layout(&mem_ranges, &mem_ranges_len)) {
+    if (parse_mem_layout(&mem_ranges, &mem_ranges_len)) {
         err_log( "parse_mem_layout failed\n");
         return -1;
     }
@@ -579,14 +579,14 @@ int parse_and_print_memory_layout(struct mem_layout* out_mem_layout, bool access
     for(size_t i = 0; i < mem_ranges_len; i++) {
         mem_range_t* m = mem_ranges+i;
         uint64_t accessible_pa_in_mr;
-        if( (m->mt != MT_SYSTEM_RAM) && (m->mt != MT_RESERVED)) {
+        if ((m->mt != MT_SYSTEM_RAM) && (m->mt != MT_RESERVED)) {
             continue;
         }
         //ignore memory ranges without any accessible physical addresses.
         //These are reserved memory range where the reserved is not due to 
         //our memmap kern param. However, on some systems the RMP was in such memory ranges. Thus access_reserved allows
         //to overwrite this
-        if( find_accessible_pa_in_mem_range(m, &accessible_pa_in_mr, access_reserved )) {
+        if (find_accessible_pa_in_mem_range(m, &accessible_pa_in_mr, access_reserved )) {
             continue;
         }
         system_ram_bytes += m->end - m->start;
@@ -613,10 +613,10 @@ int parse_and_print_memory_layout(struct mem_layout* out_mem_layout, bool access
     goto cleanup;
 error:
     ret = -1;
-    if( mem_ranges ) {
+    if (mem_ranges) {
         free(mem_ranges);
     }
-    if( alias_candidate_ranges ) {
+    if (alias_candidate_ranges) {
         free(alias_candidate_ranges);
     }
 cleanup:
@@ -634,9 +634,9 @@ int select_candidates_for_mem_range(struct mem_layout mem_layout, struct cli_fla
     /*Either parse pre-configured mem range + candidate list from file, or search one candidate for each
      * memory range
     */
-    if( flags.source_pa_path != NULL ) {
+    if (flags.source_pa_path != NULL) {
         printf("Parsing source_pa from input file\n");
-        if( parse_source_pa_from_csv(flags.source_pa_path, &source_pa, &source_pa_len )) {
+        if (parse_source_pa_from_csv(flags.source_pa_path, &source_pa, &source_pa_len )) {
             err_log("failed to parse input file\n");
             goto error;
         }
@@ -644,7 +644,7 @@ int select_candidates_for_mem_range(struct mem_layout mem_layout, struct cli_fla
         printf("Parsed source_pa values:\n");
         for(size_t i = 0; i < source_pa_len; i++) {
             int mr_idx = pa_to_mr(source_pa[i], alias_candidate_ranges, alias_candidate_ranges_len );
-            if( -1 == mr_idx ) {
+            if (-1 == mr_idx) {
                 printf("0x%09jx does not belong to any known memory range\n", source_pa[i]);
                 goto error;
             }
@@ -665,17 +665,17 @@ int select_candidates_for_mem_range(struct mem_layout mem_layout, struct cli_fla
         size_t next_idx = 0;
         for (size_t i = 0; i < alias_candidate_ranges_len ; i++) {
             mem_range_t* m = alias_candidate_ranges+i;
-            if( m->mt != MT_SYSTEM_RAM) {
+            if (m->mt != MT_SYSTEM_RAM) {
                 continue;
             }
             uint64_t pa;
-            if( find_accessible_pa_in_mem_range(m, &pa, flags.access_reserved )) {
+            if (find_accessible_pa_in_mem_range(m, &pa, flags.access_reserved )) {
                 printf("Did not find accessible pa in mem range. We have already checked for this, so it should never happen here!\n");
                 goto error;
             }
             source_pa[next_idx] = pa;
             source_pa_mem_ranges[next_idx] = *m;
-            if( (source_pa[next_idx] % 64) != 0) {
+            if ((source_pa[next_idx] % 64) != 0) {
                 //align to next cacheline
                 source_pa[next_idx] = (source_pa[next_idx] + 64 ) & (~0x3fULL);
             }
@@ -695,10 +695,10 @@ int select_candidates_for_mem_range(struct mem_layout mem_layout, struct cli_fla
         char buf[64];
         for(size_t i = 0; i < source_pa_len; i++) {
             page_stats_t stats;
-            if( memcpy_frompa(buf, source_pa[i], buf_len, &stats , true)) {
+            if (memcpy_frompa(buf, source_pa[i], buf_len, &stats , true)) {
                 printf("Failed to access source_pa 0x%09jx", source_pa[i]);
                 int mr_idx = pa_to_mr(source_pa[i], mem_layout.mem_ranges, mem_layout.mem_ranges_len);
-                if( mr_idx == -1) {
+                if (mr_idx == -1) {
                     printf("\n\tFailed to get mem range for this pa. This should not happen\n");
                 } else {
                     mem_range_t* mr = mem_layout.mem_ranges+mr_idx;
@@ -711,7 +711,7 @@ int select_candidates_for_mem_range(struct mem_layout mem_layout, struct cli_fla
 
     int ret = 0;
     *out_mem_range_pas = malloc(sizeof(struct mem_range_pa) * source_pa_len);
-    for(size_t i = 0; i < source_pa_len; i++ ) {
+    for(size_t i = 0; i < source_pa_len; i++) {
         (*out_mem_range_pas)[i].pa = source_pa[i];
         (*out_mem_range_pas)[i].mr = source_pa_mem_ranges[i];
     }
@@ -745,13 +745,13 @@ int mode_report(struct cli_flags flags) {
         err_log("failed to create output file at \"%s\" : %s",flags.output_path, strerror(errno));
         return -1;
     }
-    if( fprintf(out_file,"#(inclusive) start PA,(exclusive) end PA\n" ) < 0 ) {
+    if (fprintf(out_file,"#(inclusive) start PA,(exclusive) end PA\n" ) < 0) {
         err_log("failed to write csv header : %s\n", strerror(errno));
         fclose(out_file);
         return -1;
     }
-    for( size_t i = 0; i < mem_layout.filtered_ranges_len; i++ ) {
-        if( fprintf(out_file, "0x%09jx,0x%09jx\n",mem_layout.filtered_ranges[i].start, mem_layout.filtered_ranges[i].end) < 0 ) {
+    for (size_t i = 0; i < mem_layout.filtered_ranges_len; i++) {
+        if (fprintf(out_file, "0x%09jx,0x%09jx\n",mem_layout.filtered_ranges[i].start, mem_layout.filtered_ranges[i].end) < 0) {
             err_log("failed to write memrange entry at idx %ju : %s\n", i, strerror(errno));
             fclose(out_file);
         }
@@ -790,11 +790,11 @@ static int parse_memranges_from_file(char* path, struct mem_layout* ml) {
     size_t buf_bytes = 512;
     fpos_t payload_file_offset;
     buf = (char*)malloc(buf_bytes);
-    if( fgets(buf, buf_bytes, in_file) == NULL ) {
+    if (fgets(buf, buf_bytes, in_file) == NULL) {
         err_log("Failed to read header row : %s\n", strerror(errno));
         goto error;
     }
-    if( ferror(in_file) ) {
+    if (ferror(in_file)) {
         err_log("Error reading from %s : %s\n", path, strerror(errno));
         goto error;
     }
@@ -805,22 +805,22 @@ static int parse_memranges_from_file(char* path, struct mem_layout* ml) {
             goto error;
         }
     }
-    if( fgetpos(in_file, &payload_file_offset)) {
+    if (fgetpos(in_file, &payload_file_offset)) {
         err_log("fgetpos failed : %s\n", strerror(errno));
         goto error;
     }
-    while(  2 == fscanf(in_file, "0x%jx,0x%jx\n", &dummy, &dummy )) {
+    while ( 2 == fscanf(in_file, "0x%jx,0x%jx\n", &dummy, &dummy )) {
         len += 1;
     }
-    if( ferror(in_file) ) {
+    if (ferror(in_file)) {
         err_log("Error reading from %s : %s\n", path, strerror(errno));
         goto error;
     }
-    if( fseek(in_file, 0, SEEK_SET)) {
+    if (fseek(in_file, 0, SEEK_SET)) {
         err_log("Error resetting file position : %s\n", strerror(errno));
         goto error;
     }
-    if( len < 1 ) {
+    if (len < 1) {
         err_log("Input file %s does not contain any entries\n", path);
         goto error;
     }
@@ -833,16 +833,16 @@ static int parse_memranges_from_file(char* path, struct mem_layout* ml) {
         err_log("fsetpos failed\n");
         goto error;
     }
-    while( 2 == fscanf(in_file, "0x%jx,0x%jx\n", &(mr[idx].start), &(mr[idx].end))){
+    while (2 == fscanf(in_file, "0x%jx,0x%jx\n", &(mr[idx].start), &(mr[idx].end))){
         char* dummy_name = "Not restored by parser\n";
         memcpy(mr[idx].name, dummy_name, strlen(dummy_name));
         idx += 1;
     }
-    if( ferror(in_file) ) {
+    if (ferror(in_file)) {
         err_log("Error reading from %s : %s\n", path, strerror(errno));
         goto error;
     }
-    if( idx != len ) {
+    if (idx != len) {
         err_log("Expected to read %ju entries but got %ju\n", len, idx);
         goto error;
     }
@@ -891,13 +891,13 @@ int mode_find(struct cli_flags flags) {
 
     //Search alias for each source_pa
     uint64_t* alias_pa = calloc(source_candidates_len, sizeof(uint64_t));
-    for( size_t i = 0; i < source_candidates_len; i++) {
+    for (size_t i = 0; i < source_candidates_len; i++) {
         printf("[%ju/%ju[: Searching alias for 0x%jx\n", i, source_candidates_len, source_candidates[i].pa);
         //First check if any of the already found alias shifts work
         bool existing_alias_worked = false;
         for(size_t j = 0; j < i; j++) {
             //invalid value
-            if( alias_pa[j] == 0) {
+            if (alias_pa[j] == 0) {
                 continue;
             }
 
@@ -909,7 +909,7 @@ int mode_find(struct cli_flags flags) {
                 .flush_method = FM_CLFLUSH,
                 .out_stats = {0},
             };
-            if( check_alias(source_candidates[i].pa, alias_candidate, &cfg, true)) {
+            if (check_alias(source_candidates[i].pa, alias_candidate, &cfg, true)) {
                 continue;
             }
             existing_alias_worked = true;
@@ -917,13 +917,13 @@ int mode_find(struct cli_flags flags) {
             break;
         }
 
-        if( existing_alias_worked ) {
+        if (existing_alias_worked) {
             printf("Found alias using existing alias mask 0x%09jx\n", source_candidates[i].pa ^ alias_pa[i]);
             continue;
         }
 
         //Otherwise sweep memory range
-        if( flags.no_scrambling ) {
+        if (flags.no_scrambling) {
             if(find_alias_no_scrambling(source_candidates[i].pa, alias_pa+i, mem_layout.filtered_ranges, mem_layout.filtered_ranges_len,flags.access_reserved)) {
                 err_log( "find_alias_no_scrambling for 0x%jx failed\n", source_candidates[i].pa);
             }
@@ -935,9 +935,9 @@ int mode_find(struct cli_flags flags) {
     }
 
     printf("Result\n");
-    for( size_t i = 0;i < source_candidates_len; i++) {
+    for (size_t i = 0;i < source_candidates_len; i++) {
         struct mem_range_pa* sc = source_candidates+i;
-        if( alias_pa[i] != 0 ) {
+        if (alias_pa[i] != 0) {
             printf("Mem Range{.start=0x%09jx, .end=0x%09jx} : orig=0x%09jx alias=0x%09jx xor=0x%09jx\n",
             sc->mr.start, sc->mr.end, sc->pa, alias_pa[i], sc->pa ^ alias_pa[i]);
         } else {
@@ -947,7 +947,7 @@ int mode_find(struct cli_flags flags) {
     }
 
     printf("Writing aliases to: %s", flags.output_path);
-    if( store_valid_aliases(flags.output_path,source_candidates, alias_pa, source_candidates_len) ) {
+    if (store_valid_aliases(flags.output_path,source_candidates, alias_pa, source_candidates_len)) {
         printf("Failed to store alias to file\n");
         goto error;        
     }
@@ -966,7 +966,7 @@ cleanup:
     return ret; 
 }
 
-int run(enum main_mode mode, struct cli_flags flags ) {
+int run(enum main_mode mode, struct cli_flags flags) {
     int ret = 0;
     if (open_kmod()) {
         printf( "failed to communicate with kernel driver : %s\n", strerror(errno));
@@ -996,7 +996,7 @@ cleanup:
 int main(int argc, char** argv) {
     const char* verb_report_only = "report";
     const char* verb_find = "find";
-    if( argc < 2 ) {
+    if (argc < 2) {
         print_usage();
         return -1;
     }
@@ -1011,13 +1011,13 @@ int main(int argc, char** argv) {
         return -1;
     }
     struct cli_flags cli_flags = {0};
-    if( parse_cli_flags(argc, argv, &cli_flags )) {
+    if (parse_cli_flags(argc, argv, &cli_flags )) {
         err_log("Failed to parse cli args\n");
         print_usage();
         return -1;
     }
 
-    if( run(main_mode, cli_flags) ) {
+    if (run(main_mode, cli_flags)) {
         err_log("main run function failed\n");
         return -1;
     }

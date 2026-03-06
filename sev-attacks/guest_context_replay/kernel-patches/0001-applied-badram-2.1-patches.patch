@@ -230,7 +230,7 @@ index b2832c381d42..4e7a2bf283d2 100644
 +				__FILE__, __LINE__, fault.gfn, fault.pfn);
 +		ret = direct_map(vcpu, &fault);
 +			//RET_PF_FIXED (=4) should indicate success. See mmu_internal.h for other values
-+		if( RET_PF_FIXED != ret ) {
++		if (RET_PF_FIXED != ret) {
 +			printk("%s:%d direct_map for gfn 0x%llx to pfn 0x%llx failed with %d\n",
 +				__FILE__, __LINE__, fault.gfn, fault.pfn, ret);
 +			return ret;
@@ -257,12 +257,12 @@ index b2832c381d42..4e7a2bf283d2 100644
 -	if (exit_fastpath != EXIT_FASTPATH_NONE)
 +
 +	spin_lock(&badram_remap_req_lock);
-+	if( badram_remap_req.pending && (vcpu->kvm == badram_remap_req.target_kvm)) {
++	if (badram_remap_req.pending && (vcpu->kvm == badram_remap_req.target_kvm)) {
 +		int res;
 +		invoked_badram = 1;
 +		printk("%s:%d about to call badram_remap_gfns, current exit_code = %x\n", __FILE__, __LINE__, exit_code);
 +		write_lock(&vcpu->kvm->mmu_lock);
-+		if( (res = badram_remap_gfns(vcpu)) != RET_PF_FIXED) {
++		if ((res = badram_remap_gfns(vcpu)) != RET_PF_FIXED) {
 +			pr_err("%s:%d badram_remap_gfns failed with %d", __FILE__, __LINE__, res);
 +		} else {
 +			printk("%s:%d badram_reamp_gfns succeeded!\n", __FILE__, __LINE__);
@@ -272,7 +272,7 @@ index b2832c381d42..4e7a2bf283d2 100644
 +		badram_remap_req.pending = false;
 +		//should be done by direct_map but better safe than sorry
 +		kvm_service_local_tlb_flush_requests(vcpu);
-+		if( exit_code == SVM_EXIT_NPF ) {
++		if (exit_code == SVM_EXIT_NPF) {
 +			printk("%s:%d badram_remap_gfns called as part of NPF exit, let cpu retry on original fault\n", __FILE__, __LINE__);
 +			spin_unlock(&badram_remap_req_lock);
 +			return RET_PF_RETRY;
@@ -281,7 +281,7 @@ index b2832c381d42..4e7a2bf283d2 100644
 +	spin_unlock(&badram_remap_req_lock);
 +
 +	spin_lock(&badram_pause_vm_lock);
-+	if( (badram_pause_vm.target_kvm == vcpu->kvm )&& (badram_pause_vm.status == BPV_PAUSE_REQUESTED)) {
++	if ((badram_pause_vm.target_kvm == vcpu->kvm )&& (badram_pause_vm.status == BPV_PAUSE_REQUESTED)) {
 +		badram_pause_vm.status =  BPV_PAUSED;
 +		printk("%s:%d %s : acking pause requeted, waiting for resume request...\n", __FILE__, __LINE__, __FUNCTION__);
 +		//busy wait
@@ -602,7 +602,7 @@ index eb0dfcd157f4..0e0c8edf079d 100644
 +	mutex_lock(&kvm_lock);
 +
 +	list_for_each_entry(kvm, &vm_list, vm_list) {
-+		if( kvm->userspace_pid == qemupid ) {
++		if (kvm->userspace_pid == qemupid) {
 +			*out_kvm = kvm;
 +			mutex_unlock(&kvm_lock);
 +			return 0;
@@ -624,19 +624,19 @@ index eb0dfcd157f4..0e0c8edf079d 100644
 +				void __user *argp = (void __user *)arg;
 +
 +				//copy params and locate vm
-+				if( copy_from_user(&params, argp, sizeof(params))) {
++				if (copy_from_user(&params, argp, sizeof(params))) {
 +					printk("%s:%d copy_to_user failed\n", __FILE__, __LINE__);
 +					return -EINVAL;
 +				}
 +	
-+				if( qemupid_to_kvm(params.qemupid, &kvm)) {
++				if (qemupid_to_kvm(params.qemupid, &kvm)) {
 +					printk("%s:%d qemupid_to_kvm failed for qemupid %llu\n", __FILE__, __LINE__, params.qemupid);
 +					return -EINVAL;
 +				}
 +
 +				//request vm to stay in paused state on next exit
 +				spin_lock(&badram_pause_vm_lock);
-+				if( badram_pause_vm.status != BPV_INVALID ) {
++				if (badram_pause_vm.status != BPV_INVALID) {
 +					printk("%s:%d there is already an ongoing pause operation!\n",
 +						__FILE__, __LINE__);
 +
@@ -650,7 +650,7 @@ index eb0dfcd157f4..0e0c8edf079d 100644
 +				//busy wait for next exit to happen
 +				while(1) {
 +					spin_lock(&badram_pause_vm_lock);
-+					if( badram_pause_vm.status == BPV_PAUSED) {
++					if (badram_pause_vm.status == BPV_PAUSED) {
 +						spin_unlock(&badram_pause_vm_lock);
 +						break;
 +					}
@@ -668,26 +668,26 @@ index eb0dfcd157f4..0e0c8edf079d 100644
 +				void __user *argp = (void __user *)arg;
 +
 +				//copy params and locate vm
-+				if( copy_from_user(&params, argp, sizeof(params))) {
++				if (copy_from_user(&params, argp, sizeof(params))) {
 +					printk("%s:%d copy_to_user failed\n", __FILE__, __LINE__);
 +					return -EINVAL;
 +				}
 +	
-+				if( qemupid_to_kvm(params.qemupid, &kvm)) {
++				if (qemupid_to_kvm(params.qemupid, &kvm)) {
 +					printk("%s:%d qemupid_to_kvm failed for qemupid %llu\n", __FILE__, __LINE__, params.qemupid);
 +					return -EINVAL;
 +				}
 +
 +				//request vm to resume
 +				spin_lock(&badram_pause_vm_lock);
-+				if( badram_pause_vm.status != BPV_PAUSED ) {
++				if (badram_pause_vm.status != BPV_PAUSED) {
 +					printk("%s:%d the VM not in paused state\n",
 +						__FILE__, __LINE__);
 +
 +					spin_unlock(&badram_pause_vm_lock);
 +					return -EINVAL;
 +				}
-+				if( badram_pause_vm.target_kvm != kvm) {
++				if (badram_pause_vm.target_kvm != kvm) {
 +					printk("%s:%d the previous pause request was for a different VM\n",
 +						__FILE__, __LINE__);
 +
@@ -701,7 +701,7 @@ index eb0dfcd157f4..0e0c8edf079d 100644
 +				//busy wait for resume to happen
 +				while(1) {
 +					spin_lock(&badram_pause_vm_lock);
-+					if( badram_pause_vm.status == BPV_RESUMED) {
++					if (badram_pause_vm.status == BPV_RESUMED) {
 +						badram_pause_vm.status = BPV_INVALID;
 +						badram_pause_vm.target_kvm = NULL;
 +						spin_unlock(&badram_pause_vm_lock);
@@ -721,24 +721,24 @@ index eb0dfcd157f4..0e0c8edf079d 100644
 +				struct kvm_vcpu* vcpu;
 +				void __user *argp = (void __user *)arg;
 +
-+				if( copy_from_user(&params, argp, sizeof(params))) {
++				if (copy_from_user(&params, argp, sizeof(params))) {
 +					printk("%s:%d copy_to_user failed\n", __FILE__, __LINE__);
 +					return -EINVAL;
 +				}
 +	
-+				if( qemupid_to_kvm(params.qemupid, &kvm)) {
++				if (qemupid_to_kvm(params.qemupid, &kvm)) {
 +					printk("%s:%d qemupid_to_kvm failed for qemupid %llu\n", __FILE__, __LINE__, params.qemupid);
 +					return -EINVAL;
 +				}
 +				vcpu = xa_load(&kvm->vcpu_array, 0);
 +
-+				if( badram_get_spte(vcpu, params.gpa , params.goal_level , &params.out_spte )) {
++				if (badram_get_spte(vcpu, params.gpa , params.goal_level , &params.out_spte )) {
 +					printk("%s:%d badram_get_spte failed\n", __FILE__, __LINE__);
 +					return -EINVAL;
 +				}
 +				params.out_hpa = params.out_spte & SPTE_BASE_ADDR_MASK;
 +
-+				if( copy_to_user(argp, &params, sizeof(params))) {
++				if (copy_to_user(argp, &params, sizeof(params))) {
 +						printk("%s:%d copy_to_user failed\n", __FILE__, __LINE__);
 +						return -EINVAL;
 +				}
@@ -754,13 +754,13 @@ index eb0dfcd157f4..0e0c8edf079d 100644
 +				bool is_tdp, have_nx_workaround;
 +				void __user *argp = (void __user *)arg;
 +
-+				if( copy_from_user(&params, argp, sizeof(params))) {
++				if (copy_from_user(&params, argp, sizeof(params))) {
 +					printk("%s:%d copy_to_user failed\n", __FILE__, __LINE__);
 +					return -EINVAL;
 +				}
 +
 +				
-+				if( qemupid_to_kvm(params.qemupid, &kvm)) {
++				if (qemupid_to_kvm(params.qemupid, &kvm)) {
 +					printk("%s:%d qemupid_to_kvm failed for qemupid %llu\n", __FILE__, __LINE__, params.qemupid);
 +					return -EINVAL;
 +				}
@@ -802,12 +802,12 @@ index eb0dfcd157f4..0e0c8edf079d 100644
 +				void __user *argp = (void __user *)arg;
 +
 +
-+				if( copy_from_user(&params, argp, sizeof(params))) {
++				if (copy_from_user(&params, argp, sizeof(params))) {
 +					printk("%s:%d copy_to_user failed\n", __FILE__, __LINE__);
 +					return -EINVAL;
 +				}
 +
-+				if( qemupid_to_kvm(params.qemupid, &kvm)) {
++				if (qemupid_to_kvm(params.qemupid, &kvm)) {
 +					printk("%s:%d qemupid_to_kvm failed for qemupid %llu\n", __FILE__, __LINE__, params.qemupid);
 +					return -EINVAL;
 +				}
@@ -833,7 +833,7 @@ index eb0dfcd157f4..0e0c8edf079d 100644
 +			struct kvm_memory_slot* memslot;
 +			void __user *argp = (void __user *)arg;
 +
-+			if( copy_from_user(&params, argp, sizeof(params))) {
++			if (copy_from_user(&params, argp, sizeof(params))) {
 +					printk("%s:%d copy_to_user failed\n", __FILE__, __LINE__);
 +					return -EINVAL;
 +			}
@@ -842,12 +842,12 @@ index eb0dfcd157f4..0e0c8edf079d 100644
 +			mutex_lock(&kvm_lock);
 +			list_for_each_entry(kvm, &vm_list, vm_list) {
 +				//printk("kvm->userspace_pid = %u\n", kvm->userspace_pid);
-+				if( kvm->userspace_pid == params.qemu_pid ) {
++				if (kvm->userspace_pid == params.qemu_pid) {
 +						target_kvm = kvm;
 +				}
 +			}
 +			mutex_unlock(&kvm_lock);
-+			if( target_kvm == NULL ) {
++			if (target_kvm == NULL) {
 +					printk("%s:%d did not find kvm with pid %llu\n", __FILE__, __LINE__, params.qemu_pid);
 +					return -EINVAL;
 +			}
@@ -861,13 +861,13 @@ index eb0dfcd157f4..0e0c8edf079d 100644
 +			gfn = params.gpa >> 12;
 +			memslot = gfn_to_memslot(target_kvm, gfn);
 +			//Path 1
-+			if(  kvm_slot_can_be_private(memslot)) {
++			if ( kvm_slot_can_be_private(memslot)) {
 +				int order;
-+				if( kvm_gmem_get_pfn(target_kvm, memslot, gfn, &pfn, &order) ) {
++				if (kvm_gmem_get_pfn(target_kvm, memslot, gfn, &pfn, &order)) {
 +						printk("%s:%d kvm_gmem_get_pfn failed\n", __FILE__, __LINE__);
 +						return -EINVAL;
 +				}
-+				if( is_error_pfn(pfn)) {
++				if (is_error_pfn(pfn)) {
 +						printk("%s:%d kvm_gmem_get_pfn returned bad pfn 0x%llx\n", __FILE__, __LINE__, pfn);
 +						return -EINVAL;	
 +				}
@@ -879,7 +879,7 @@ index eb0dfcd157f4..0e0c8edf079d 100644
 +
 +					mmap_read_lock(target_kvm->mm);
 +					locked = 1;
-+					if( pin_user_pages_remote(target_kvm->mm, hva, 1, 0, &page, &locked) != 1) {
++					if (pin_user_pages_remote(target_kvm->mm, hva, 1, 0, &page, &locked) != 1) {
 +						printk("%s:%d: get_user_pages_remote_unlocked for failed\n", __FILE__, __LINE__);
 +						mmap_read_unlock(target_kvm->mm);
 +						return -EINVAL;
@@ -889,7 +889,7 @@ index eb0dfcd157f4..0e0c8edf079d 100644
 +					pfn = page_to_pfn(page);
 +					unpin_user_pages(&page, 1);
 +
-+					if( is_error_pfn(pfn)) {
++					if (is_error_pfn(pfn)) {
 +						printk("%s: got error pfn using regular path\n", __FUNCTION__);
 +						return -EINVAL;		
 +					}
@@ -898,7 +898,7 @@ index eb0dfcd157f4..0e0c8edf079d 100644
 +			params.out_hpa = (pfn << 12 ) | offset;
 +			printk("%s:%d out_hpa=0x%llx\n", __FILE__, __LINE__, params.out_hpa);
 +
-+			if( copy_to_user(argp, &params, sizeof(params))) {
++			if (copy_to_user(argp, &params, sizeof(params))) {
 +					printk("%s:%d copy_to_user failed\n", __FILE__, __LINE__);
 +					return -EINVAL;
 +			}

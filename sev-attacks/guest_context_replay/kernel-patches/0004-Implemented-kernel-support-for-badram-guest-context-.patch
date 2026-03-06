@@ -34,7 +34,7 @@ index 0b9f0b636d3a..49b69ec72113 100644
 +
 +
 +int add_svm_details(svm_details_t* v) {
-+  if( get_svm_details(v->kvm)) {
++  if (get_svm_details(v->kvm)) {
 +    printk("%s:%d %s : entry already exists", __FILE__, __LINE__, __FUNCTION__);
 +    return -1;
 +  }
@@ -49,7 +49,7 @@ index 0b9f0b636d3a..49b69ec72113 100644
 +  svm_details_t* e;
 +  list_for_each(pos, &svm_details_list) {
 +    e = list_entry(pos, svm_details_t, list);
-+    if( e->kvm == kvm ) {
++    if (e->kvm == kvm) {
 +      return e;
 +    }
 +  }
@@ -176,7 +176,7 @@ index 681ab6778547..d2ff183e36c3 100644
 +	svm_details->kvm = kvm;
 +	svm_details->gctx_pa = __pa(sev->snp_context);
 +	spin_lock(&svm_details_lock);
-+	if( add_svm_details(svm_details)) {
++	if (add_svm_details(svm_details)) {
 +		pr_err("Failed to add entry to svm_details_list\n");
 +		spin_unlock(&svm_details_lock);
 +		kfree(svm_details);
@@ -223,9 +223,9 @@ index 681ab6778547..d2ff183e36c3 100644
 +		uint64_t gctx_pa = __pa(sev->snp_context);
 +		badram_gctx_replay_t* r = &badram_gctx_replay;
 +
-+		if(gctx_pa == r->expected_gctx_pa ) {
++		if(gctx_pa == r->expected_gctx_pa) {
 +			uint64_t pa = r->gctx_alias_pa + r->gctx_offset;
-+			if( raw_memcpy_to_pa(pa, r->data, r->data_len)) {
++			if (raw_memcpy_to_pa(pa, r->data, r->data_len)) {
 +				printk("%s:%d %s : raw_memcpy_to_pa for pa 0x%llx failed\n",
 +					__FILE__, __LINE__, __FUNCTION__, pa);
 +			} else {
@@ -273,7 +273,7 @@ index 681ab6778547..d2ff183e36c3 100644
  			return;
  		}
 +		spin_lock(&svm_details_lock);
-+		if( remove_svm_details(kvm)) {
++		if (remove_svm_details(kvm)) {
 +			printk("%s:%d %s : Failed to remove svm_details entry\n", __FILE__, __LINE__, __FUNCTION__);
 +		}
 +		spin_unlock(&svm_details_lock);
@@ -415,7 +415,7 @@ index 6ca8acb801c3..85110e0ba47b 100644
 +			void __user *argp = (void __user *)arg;
 +			uint8_t* replay_data;
 +
-+			if( copy_from_user(&params, argp, sizeof(params))) {
++			if (copy_from_user(&params, argp, sizeof(params))) {
 +				printk("%s:%d copy_from_user failed\n", __FILE__, __LINE__);
 +				return -EINVAL;
 +			}
@@ -448,12 +448,12 @@ index 6ca8acb801c3..85110e0ba47b 100644
 +				svm_details_t* details;
 +
 +				//copy params and locate vm
-+				if( copy_from_user(&params, argp, sizeof(params))) {
++				if (copy_from_user(&params, argp, sizeof(params))) {
 +					printk("%s:%d copy_from_user failed\n", __FILE__, __LINE__);
 +					return -EINVAL;
 +				}
 +	
-+				if( qemupid_to_kvm(params.qemupid, &kvm)) {
++				if (qemupid_to_kvm(params.qemupid, &kvm)) {
 +					printk("%s:%d qemupid_to_kvm failed for qemupid %llu\n", __FILE__, __LINE__, params.qemupid);
 +					return -EINVAL;
 +				}
@@ -461,7 +461,7 @@ index 6ca8acb801c3..85110e0ba47b 100644
 +				//lookup PA of guest context for the given VM via
 +				//our data structure
 +				spin_lock(&svm_details_lock);
-+				if( !(details = get_svm_details(kvm))) {
++				if (!(details = get_svm_details(kvm))) {
 +					printk("%s:%d failed to get svm_details entry\n", __FILE__, __LINE__);
 +					spin_unlock(&svm_details_lock);
 +					return -EINVAL;
@@ -469,7 +469,7 @@ index 6ca8acb801c3..85110e0ba47b 100644
 +				spin_unlock(&svm_details_lock);
 +				params.out_gctx_pa = details->gctx_pa;
 +
-+				if( copy_to_user(argp, &params, sizeof(params))) {
++				if (copy_to_user(argp, &params, sizeof(params))) {
 +						printk("%s:%d copy_to_user failed\n", __FILE__, __LINE__);
 +						return -EINVAL;
 +				}

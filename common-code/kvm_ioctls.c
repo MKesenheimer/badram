@@ -18,7 +18,7 @@ static int _kvm_fd = -1;
  * @returns 0 on success
 */
 static int ensure_init_kvm_fd() {
-  if( _kvm_fd == -1 ) {
+  if (_kvm_fd == -1) {
     _kvm_fd = open("/dev/kvm", O_RDWR|O_CLOEXEC);
   }
   return _kvm_fd == -1;
@@ -28,7 +28,7 @@ static int ensure_init_kvm_fd() {
  * @brief close file descriptor if it is open
 */
 static void close_kvm_fd() {
-    if( _kvm_fd != -1  ) {
+    if (_kvm_fd != -1 ) {
         close(_kvm_fd);
         _kvm_fd = -1;
     }
@@ -37,7 +37,7 @@ static void close_kvm_fd() {
 static char* ioctl_err_prefix = "ioctl failed (do you have KVM badram patches?)";
 
 int ioctl_gpa_to_hpa(uint64_t gpa, uint64_t qemu_pid, uint64_t* out_hpa) {
-    if( ensure_init_kvm_fd() ) {
+    if (ensure_init_kvm_fd()) {
       err_log("failed to open kvm api : %s", strerror(errno));
       return -1;
     }
@@ -65,7 +65,7 @@ cleanup:
 }
 
 int ioctl_tlb_flush(uint64_t qemu_pid) {
-    if( ensure_init_kvm_fd() ) {
+    if (ensure_init_kvm_fd()) {
       err_log("failed to open kvm api : %s", strerror(errno));
       return -1;
     }
@@ -88,7 +88,7 @@ cleanup:
 
 
 int ioctl_remap_gfns(uint64_t qemu_pid, uint64_t gfn1, uint64_t pfn1, uint64_t gfn2, uint64_t pfn2) {
-    if( ensure_init_kvm_fd() ) {
+    if (ensure_init_kvm_fd()) {
       err_log("failed to open kvm api : %s", strerror(errno));
       return -1;
     }
@@ -113,7 +113,7 @@ cleanup:
 
 int ioctl_get_spte(uint64_t qemu_pid, uint64_t gpa, pg_level_t goal_pt_level,
  uint64_t* out_spte, uint64_t* out_hpa) {
-    if( ensure_init_kvm_fd() ) {
+    if (ensure_init_kvm_fd()) {
       err_log("failed to open kvm api : %s", strerror(errno));
       return -1;
     }
@@ -142,7 +142,7 @@ cleanup:
     return ret;
 }
 int ioctl_pause_vm_blocking(uint64_t qemu_pid) {
-    if( ensure_init_kvm_fd() ) {
+    if (ensure_init_kvm_fd()) {
       err_log("failed to open kvm api : %s", strerror(errno));
       return -1;
     }
@@ -163,7 +163,7 @@ cleanup:
     return ret;
 }
 int ioctl_resume_vm_blocking(uint64_t qemu_pid) {
-    if( ensure_init_kvm_fd() ) {
+    if (ensure_init_kvm_fd()) {
       err_log("failed to open kvm api : %s", strerror(errno));
       return -1;
     }

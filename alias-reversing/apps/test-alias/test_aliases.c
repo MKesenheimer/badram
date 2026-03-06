@@ -27,7 +27,7 @@ typedef struct {
 } mr_stats_t;
 
 void free_mr_stats_t(mr_stats_t s) {
-    if(s.disfunct_pa != NULL ) {
+    if(s.disfunct_pa != NULL) {
         free(s.disfunct_pa);
     }
 }
@@ -43,10 +43,10 @@ void free_mr_stats_t(mr_stats_t s) {
 int test_mem_range(mem_range_t mr, uint64_t alias, mr_stats_t* out_stats, struct arguments args) {
     out_stats->disfunct_pa = NULL;
     uint64_t aligned_start = mr.start;
-    if( aligned_start & 0xfff ) {
+    if (aligned_start & 0xfff) {
         aligned_start = (aligned_start + 4096) & 0xfff;
     }
-    if( aligned_start >= mr.end ) {
+    if (aligned_start >= mr.end) {
         err_log("Weird small memory range: MemRange{.start = 0x%09jx .end=0x%09jx} and aligned_start=0x%09jx\n",
             mr.start, mr.end, aligned_start);
         return -1;
@@ -63,14 +63,14 @@ int test_mem_range(mem_range_t mr, uint64_t alias, mr_stats_t* out_stats, struct
         .out_stats = {0},
     };
     uint64_t* df = malloc(sizeof(uint64_t) * pages_in_mr);
-    for(uint64_t pa = aligned_start; pa < mr.end; pa += 4096 ) {
+    for(uint64_t pa = aligned_start; pa < mr.end; pa += 4096) {
         uint64_t alias_pa = pa ^ alias;
         //printf("pa 0x%09jx alias_candidate 0x%09jx\n", pa, alias_pa);
         int ret = check_alias(pa, alias_pa, &cfg, false ); 
-        if( ret == CHECK_ALIAS_ERR_NO_ALIAS ) {
+        if (ret == CHECK_ALIAS_ERR_NO_ALIAS) {
             df[df_next] = pa;
             df_next += 1;
-        } else if( ret == CHECK_ALIAS_ERR_ACCESS ) {
+        } else if (ret == CHECK_ALIAS_ERR_ACCESS) {
             access_errors += 1;
         }
     }
@@ -100,13 +100,13 @@ int run(struct arguments args) {
     }
     printf("Parsed %ju mem ranges\n", len);
 
-    if( open_kmod() ) {
+    if (open_kmod()) {
         printf("Failed to open kernel module driver. Did you load it?\n");
         goto error;
     }
 
     //call `test_mem_range` for each mem range and print results
-    for(size_t i = 0; i < len; i++ ) {
+    for(size_t i = 0; i < len; i++) {
         mr_stats_t stats;
 
         double mr_size_gib = (double)(mr[i].end - mr[i].start)/(1<<30);
@@ -141,10 +141,10 @@ int run(struct arguments args) {
 error:
         r = - 1;
 cleanup:
-    if( mr ) {
+    if (mr) {
         free(mr);
     }
-    if( aliases ) {
+    if (aliases) {
         free(aliases);
     }
     return r;
@@ -175,7 +175,7 @@ static error_t parse_opt(int key, char* arg, struct argp_state* state) {
             args->alias_file_path = arg;
             break;
         case ARGP_KEY_END:
-            if( args->alias_file_path == NULL ) {
+            if (args->alias_file_path == NULL) {
                 printf("Missing alias file path option\n");
                 argp_usage(state);
                 return ARGP_ERR_UNKNOWN;

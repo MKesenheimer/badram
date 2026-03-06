@@ -110,7 +110,7 @@ void custom_flush(void* mem, size_t bytes, enum flush_method fm) {
  * 
  * @returns Whether the flushing was successful.
  */
-int flush_page(ull pa, int access_reserved ) {
+int flush_page(ull pa, int access_reserved) {
   ull pfn;
   struct page* page;
   enum mapping_type mapping_type;
@@ -279,7 +279,7 @@ static long ioctl(struct file *file, unsigned int cmd, unsigned long arg) {
       if ( cpy_ret < 0) {
         return cpy_ret;
       }
-      if( copy_to_user(args.buffer, buffer, args.count) ) {
+      if (copy_to_user(args.buffer, buffer, args.count)) {
         return -1;
       }
       return cpy_ret;

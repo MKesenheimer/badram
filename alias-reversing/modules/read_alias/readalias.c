@@ -44,7 +44,7 @@ uint64_t __next_page(uint64_t pa) {
 }
 
 int wbinvd_ac(void) {
-  if( kmod_fd < 0) {
+  if (kmod_fd < 0) {
     err_log("%s:%d: driver not openened\n", __FILE__, __LINE__);
     return -1;
   }
@@ -77,13 +77,13 @@ int __memcpy_topa(uint64_t dst, void* src, size_t count, enum flush_method fm, p
         break;
       case 1:
         out_stats->reserved_pages += 1;
-        if( err_on_access_fail ) {
+        if (err_on_access_fail) {
           return -1;
         }
         break;
       case 2:
         out_stats->map_failed += 1;
-        if( err_on_access_fail ) {
+        if (err_on_access_fail) {
           return -1;
         }
         break;
@@ -125,7 +125,7 @@ int __memcpy_frompa(void* dst, uint64_t src, size_t count, enum flush_method fm,
         break;
       case 1:
         out_stats->reserved_pages += 1;
-        if( err_on_access_fail ) {
+        if (err_on_access_fail) {
           return -1;
         }
         break;
@@ -149,14 +149,14 @@ int __memcpy_frompa(void* dst, uint64_t src, size_t count, enum flush_method fm,
 }
 
 int open_kmod() {
-  if( kmod_fd == - 1) {
+  if (kmod_fd == - 1) {
     kmod_fd = open("/dev/readalias_dev", O_RDWR);
   }
   return kmod_fd < 0 ? kmod_fd : 0;
 }
 
 void close_kmod() {
-  if( kmod_fd != - 1 ) {
+  if (kmod_fd != - 1) {
     close(kmod_fd);
     kmod_fd = - 1;
   }
@@ -200,13 +200,13 @@ int __clflush_range(uint64_t pa, size_t count, page_stats_t* out_stats, bool err
         break;
       case 1:
         out_stats->reserved_pages += 1;
-        if( err_on_access_fail ) {
+        if (err_on_access_fail) {
           return -1;
         }
         break;
       case 2:
         out_stats->map_failed += 1;
-        if( err_on_access_fail ) {
+        if (err_on_access_fail) {
           return -1;
         }
         break;
@@ -248,31 +248,31 @@ int check_alias(uint64_t source_pa, uint64_t alias_candidate, struct pamemcpy_cf
         mxor[i] = m1[i] ^ m2[i];
     }
 
-    if( flush_ext(source_pa, msg_len, memcpy_cfg) ) {
+    if (flush_ext(source_pa, msg_len, memcpy_cfg)) {
         if(verbose) err_log("flush_range for 0x%jx failed\n", source_pa);
         return CHECK_ALIAS_ERR_ACCESS;
     }
 
-    if( memcpy_topa_ext(source_pa, m1, msg_len, memcpy_cfg) ) {
+    if (memcpy_topa_ext(source_pa, m1, msg_len, memcpy_cfg)) {
         if(verbose) err_log("memcpy_topa for 0x%jx failed\n", source_pa);
         return CHECK_ALIAS_ERR_ACCESS;
     }
 
     //read alias_candidate_pa
-    if( memcpy_frompa_ext(buf1, alias_candidate, msg_len, memcpy_cfg) ) {
+    if (memcpy_frompa_ext(buf1, alias_candidate, msg_len, memcpy_cfg)) {
         if(verbose) err_log("memcpy_frompa for 0x%jx failed\n", alias_candidate);
         return CHECK_ALIAS_ERR_ACCESS;
     }
 
 
     //write m2 to source_pa
-    if( memcpy_topa_ext(source_pa, m2, msg_len, memcpy_cfg) ) {
+    if (memcpy_topa_ext(source_pa, m2, msg_len, memcpy_cfg)) {
         if(verbose) err_log("memcpy_topa for source_pa 0x%jx failed\n", source_pa);
         return CHECK_ALIAS_ERR_ACCESS;
     }
 
     //read from target_pa
-    if( memcpy_frompa_ext(buf2, alias_candidate, msg_len, memcpy_cfg) ) {
+    if (memcpy_frompa_ext(buf2, alias_candidate, msg_len, memcpy_cfg)) {
         if(verbose) err_log("memcpy_frompa for target_pa 0x%jx failed\n", alias_candidate);
         return CHECK_ALIAS_ERR_ACCESS;
     }
@@ -304,7 +304,7 @@ int check_alias(uint64_t source_pa, uint64_t alias_candidate, struct pamemcpy_cf
     int found_matching_xor = 1;
     for(size_t i = 0; i < msg_len; i++) {
         bufxor[i] = buf1[i] ^ buf2[i];
-        if( mxor[i] != bufxor[i]) {
+        if (mxor[i] != bufxor[i]) {
             found_matching_xor = 0;
         }
     }
@@ -313,7 +313,7 @@ int check_alias(uint64_t source_pa, uint64_t alias_candidate, struct pamemcpy_cf
     _hexdump(bufxor, msg_len);
 #endif
 
-    if( found_matching_xor ) {
+    if (found_matching_xor) {
         if(verbose) {
             uint64_t pa_xor = source_pa ^ alias_candidate;
             printf("Found alias for 0x%jx at 0x%jx! xor diff = 0x%jx\n", source_pa, alias_candidate, pa_xor);

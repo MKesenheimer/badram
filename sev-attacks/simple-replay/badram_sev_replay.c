@@ -32,13 +32,13 @@ int main(int argc, char** argv) {
     //
     // Parse args
     //
-    if(argc != 5 ) {
+    if(argc != 5) {
         printf("Params:  <qemu pid>  <path to alias definition csv> <{gpa2hpa_qemu,gpa2hpa_kern}><target victim gpa in hex>\n");
         printf("For SEV-SNP with memfd, only gpa2hpa_kern produces correct results\n");
         return 0;
     }
     uint64_t qemu_pid;
-    if( do_stroul(argv[1],0,&qemu_pid)) {
+    if (do_stroul(argv[1],0,&qemu_pid)) {
         err_log("failed to parse '%s' as qemu_pid\n", argv[1]);
         return -1;
     }
@@ -48,9 +48,9 @@ int main(int argc, char** argv) {
     char* gpa2hpa_qemu_flag = "gpa2hpa_qemu";
     char* gpa2hpa_kern_flag = "gpa2hpa_kern";
     gpa2hpa_backend_t gpa2hpa_backend;
-    if( 0 == memcmp(gpa2hpa_kern_flag, argv[3] , strlen(gpa2hpa_kern_flag) )) {
+    if (0 == memcmp(gpa2hpa_kern_flag, argv[3] , strlen(gpa2hpa_kern_flag) )) {
         gpa2hpa_backend = GPA2HPA_KERN;
-    } else if( 0 == memcmp(gpa2hpa_qemu_flag, argv[3] , strlen(gpa2hpa_qemu_flag) )) {
+    } else if (0 == memcmp(gpa2hpa_qemu_flag, argv[3] , strlen(gpa2hpa_qemu_flag) )) {
         gpa2hpa_backend = GPA2HPA_QEMU;
     } else {
         printf("Invalid value for gpa2hpa backend: %s\n", argv[3]);
@@ -60,7 +60,7 @@ int main(int argc, char** argv) {
 
     
     uint64_t victim_gpa;
-    if( do_stroul(argv[4], 0, &victim_gpa)) {
+    if (do_stroul(argv[4], 0, &victim_gpa)) {
         err_log("failed to parse '%s' as victim_gpa\n", argv[3]);
         return -1;
     }
@@ -68,7 +68,7 @@ int main(int argc, char** argv) {
     mem_range_t* mrs = NULL;
     uint64_t* alias_masks = NULL;
     size_t mrs_len;
-    if( parse_csv(path_alias_csv, &mrs, &alias_masks, &mrs_len) ) {
+    if (parse_csv(path_alias_csv, &mrs, &alias_masks, &mrs_len)) {
         err_log("failed to parse memory range and aliases from %s\n", path_alias_csv);
         return -1;
     }
@@ -107,7 +107,7 @@ int main(int argc, char** argv) {
 
 
     uint64_t alias;
-    if( get_alias(hpa, mrs, alias_masks, mrs_len ,&alias)) {
+    if (get_alias(hpa, mrs, alias_masks, mrs_len ,&alias)) {
         err_log("failed to get alias\n");
         exit_code = EXIT_CODE_ERR;
         goto cleanup;
@@ -118,7 +118,7 @@ int main(int argc, char** argv) {
     printf("Press Enter to capture ciphertext\n");
     getchar();
 
-    if( open_kmod() ) {
+    if (open_kmod()) {
         err_log("failed to open module\n");
         exit_code = EXIT_CODE_ERR;
         goto cleanup;
@@ -166,10 +166,10 @@ int main(int argc, char** argv) {
 
 
 cleanup:
-    if( mrs ){
+    if (mrs ){
         free(mrs);
     }
-    if( alias_masks) {
+    if (alias_masks) {
         free(alias_masks);
     }
     close_kmod();

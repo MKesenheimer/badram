@@ -28,10 +28,10 @@ struct arguments {
 */
 int read_mem_range(mem_range_t mr, struct arguments args) {
     uint64_t aligned_start = mr.start;
-    if( aligned_start & 0xfff ) {
+    if (aligned_start & 0xfff) {
         aligned_start = (aligned_start + 4096) & 0xfff;
     }
-    if( aligned_start >= mr.end ) {
+    if (aligned_start >= mr.end) {
         err_log("Weird small memory range: MemRange{.start = 0x%09jx .end=0x%09jx} and aligned_start=0x%09jx\n",
             mr.start, mr.end, aligned_start);
         return -1;

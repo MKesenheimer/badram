@@ -58,7 +58,7 @@ int virt_to_phys_user(uintptr_t *paddr, pid_t pid, uintptr_t vaddr)
         close(pagemap_fd);
         return 1;
     }
-    if( entry.pfn == 0) {
+    if (entry.pfn == 0) {
         printf("%s:%d entry.pfn == 0 for pid=%d, vaddr=0x%jx, are we root?\n",__FILE__,__LINE__, pid, vaddr);
         close(pagemap_fd);
         return 1;
