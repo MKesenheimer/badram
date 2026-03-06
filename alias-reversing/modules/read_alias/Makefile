@@ -24,10 +24,10 @@ install:
 	depmod
 
 unload:
-	modprobe -r physmem
+	modprobe -r kmod_readalias
 
 load:
-	modprobe physmem
+	modprobe kmod_readalias
 
 check:
 	dmesg | tail -n 30
