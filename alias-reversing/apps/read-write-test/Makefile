@@ -17,7 +17,7 @@ INCLUDES=  -I../../../common-code/include -I$(LIBKRA)/include
 LIBS = -L$(LIBCOMMON)/build/libs -L$(LIBKRA)
 
 
-all: setup-dirs $(BIN_DIR)/test-aliases
+all: setup-dirs $(BIN_DIR)/read-write-test    
 .PHONY: clean setup-dirs
 
 #create output directores for build stuff
@@ -38,9 +38,9 @@ $(OBJ_DIR)/%.o: %.c $(INCS)
 	gcc $(CFLAGS) $(INCLUDES) -o $@ -c $<
 
 
-$(BIN_DIR)/test-aliases : $(OBJ_DIR)/test_aliases.o $(LIBCOMMON)/build/libs/libcommon.a $(LIBKRA)/libkmodreadalias.a
-	echo "Building test-aliases"
-	gcc $(INCLUDES) $(LIBS) $(CFLAGS) -o $(BIN_DIR)/test-aliases $^ -lcommon -lkmodreadalias
+$(BIN_DIR)/read-write-test     : $(OBJ_DIR)/read_write_test.o $(LIBCOMMON)/build/libs/libcommon.a $(LIBKRA)/libkmodreadalias.a
+	echo "Building read-write-test    "
+	gcc $(INCLUDES) $(LIBS) $(CFLAGS) -o $(BIN_DIR)/read-write-test     $^ -lcommon -lkmodreadalias
 
 
 clean:
