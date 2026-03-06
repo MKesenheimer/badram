@@ -19,8 +19,7 @@ int get_rand_bytes(void *p, size_t len) {
   return nb_read != len;
 }
 
-void hexdump(uint8_t* a, const size_t n)
-{
+void hexdump(uint8_t* a, const size_t n) {
 	for(size_t i = 0; i < n; i++) {
     if (a[i]) printf("\x1b[31m%02x \x1b[0m", a[i]);
     else printf("%02x ", a[i]);
@@ -29,8 +28,7 @@ void hexdump(uint8_t* a, const size_t n)
 	printf("\n");
 }
 
-int do_stroul(char *str, int base, uint64_t *result)
-{
+int do_stroul(char *str, int base, uint64_t *result) {
     (*result) = strtoul(str, NULL, base);
     // if commented in, we cannot enter zero, as uses zero as an error case. it's just stupid
     /*if ((*result) == 0) {

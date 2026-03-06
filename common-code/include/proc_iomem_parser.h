@@ -14,13 +14,12 @@ typedef enum {
 	MT_OTHER,
 } memory_type_t;
 
-typedef struct{
+typedef struct {
     uint64_t start;
     uint64_t end;
     char name[256];
 	//describe the type of this memory region
 	memory_type_t mt;
-
 } mem_range_t;
 
 /**
@@ -33,7 +32,6 @@ typedef struct{
  * @return int 0 on success
  */
 int _regexp_matches_to_mem_range(regmatch_t* matches, size_t matches_len, char* input_string, mem_range_t* result);
-
 
 /**
  * @brief Parses /proc/iomem and returns data in callee allocated array

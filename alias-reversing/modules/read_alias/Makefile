@@ -18,6 +18,20 @@ kmod_readalias.ko: kmod_readalias.c
 libkmodreadlias.a: readalias.c
 	gcc $(CFLAGS) -o readalias.o -c readalias.c
 	ar rcs libkmodreadalias.a readalias.o
+
+install:
+	cp kmod_readalias.ko /lib/modules/$(KERNEL_RELEASE)/extra/
+	depmod
+
+unload:
+	modprobe -r physmem
+
+load:
+	modprobe physmem
+
+check:
+	dmesg | tail -n 30
+
 clean:
 	rm -f kmod_readalias.ko
 	rm -f libkmodreadalias.a
