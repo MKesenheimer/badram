@@ -176,7 +176,7 @@ int memcpy_frompa(void* dst, uint64_t src, size_t count, page_stats_t* out_stats
 
 int memcpy_frompa_ext(void* dst, uint64_t src, size_t count, struct pamemcpy_cfg* cfg) {
   return __memcpy_frompa(dst, src , count , cfg->flush_method , &(cfg->out_stats) ,
-    cfg->err_on_access_fail , cfg->access_reserved );
+    cfg->err_on_access_fail , cfg->access_reserved);
 }
 
 int __clflush_range(uint64_t pa, size_t count, page_stats_t* out_stats, bool err_on_access_fail, bool access_reserved) {

@@ -296,7 +296,7 @@ index f745022f7454..d1756a610adc 100644
  
 +	spin_lock(&badram_pause_vm_lock);
 +	if ((badram_pause_vm.target_kvm == vcpu->kvm) && (badram_pause_vm.status == BPV_RESUME_REQUESTED)) {
-+		printk("%s:%d %s : updating state to resumed\n", __FILE__, __LINE__, __FUNCTION__ );
++		printk("%s:%d %s : updating state to resumed\n", __FILE__, __LINE__, __FUNCTION__);
 +		badram_pause_vm.status = BPV_RESUMED;
 +	}
 +	spin_unlock(&badram_pause_vm_lock);
@@ -741,7 +741,7 @@ index 03243a7ece08..062940a85ed6 100644
 +				printk("%s:%d is_tdp=%d\n", __FILE__, __LINE__, is_tdp);
 +				have_nx_workaround = is_nx_huge_page_enabled(kvm);
 +				for (idx = 0; idx < sizeof(params.gfns)/sizeof(params.gfns[0]); idx++) {	
-+					memslots[idx] = kvm_vcpu_gfn_to_memslot(vcpu, params.gfns[idx] );
++					memslots[idx] = kvm_vcpu_gfn_to_memslot(vcpu, params.gfns[idx]);
 +					if (!memslots[idx] || memslots[idx]->flags & KVM_MEMSLOT_INVALID) {
 +						printk("%s:%d error getting memslot for gfn 0x%llx\n", __FILE__, __LINE__, params.gfns[idx]);
 +						return -EINVAL;

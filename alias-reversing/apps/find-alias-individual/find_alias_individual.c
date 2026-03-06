@@ -63,7 +63,7 @@ int store_valid_aliases(char* path, struct mem_range_pa* source , uint64_t*  ali
         }
     }
     //serialize
-    int res = write_csv(path, mr_with_alias , alias_masks , valid_entries );
+    int res = write_csv(path, mr_with_alias , alias_masks , valid_entries);
     free(mr_with_alias);
     free(alias_masks);
     return res;
@@ -429,7 +429,7 @@ int parse_source_pa_from_csv(char* file_path, uint64_t** out_source_pa, size_t* 
         goto error;
     }
 
-    *out_source_pa = malloc(sizeof(uint64_t) * (*out_source_pa_len) );
+    *out_source_pa = malloc(sizeof(uint64_t) * (*out_source_pa_len));
     size_t next_idx = 0;
     while (fgets(line_buf, sizeof(line_buf), csv_file) != NULL) {
         if (do_stroul(line_buf, 0 , *out_source_pa+next_idx)) {
@@ -643,7 +643,7 @@ int select_candidates_for_mem_range(struct mem_layout mem_layout, struct cli_fla
         source_pa_mem_ranges = malloc(sizeof(mem_range_t) * source_pa_len); 
         printf("Parsed source_pa values:\n");
         for (size_t i = 0; i < source_pa_len; i++) {
-            int mr_idx = pa_to_mr(source_pa[i], alias_candidate_ranges, alias_candidate_ranges_len );
+            int mr_idx = pa_to_mr(source_pa[i], alias_candidate_ranges, alias_candidate_ranges_len);
             if (-1 == mr_idx) {
                 printf("0x%09jx does not belong to any known memory range\n", source_pa[i]);
                 goto error;

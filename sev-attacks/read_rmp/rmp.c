@@ -11,7 +11,7 @@ void dump_rmp_entry(char* prefix, rmp_entry_t e, FILE* stream) {
     e.info.asid,
     e.info.vmsa,
     e.info.validated
-  );
+ );
 }
 
 void dump_rmp(rmp_entry_t* rmp, size_t len, FILE* stream) {
@@ -29,7 +29,7 @@ void dump_rmp(rmp_entry_t* rmp, size_t len, FILE* stream) {
       rmp[idx].info.asid,
       rmp[idx].info.vmsa,
       rmp[idx].info.validated
-    );
+   );
 	}
 }
 

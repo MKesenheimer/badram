@@ -203,7 +203,7 @@ index 681ab6778547..d2ff183e36c3 100644
 +	}
 +
 +	wbinvd_on_all_cpus();
-+	memcpy(mapping, data , len );
++	memcpy(mapping, data , len);
 +	wbinvd_on_all_cpus();
 +
 +	memunmap(mapping);

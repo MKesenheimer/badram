@@ -66,7 +66,7 @@ int test_mem_range(mem_range_t mr, uint64_t alias, mr_stats_t* out_stats, struct
     for (uint64_t pa = aligned_start; pa < mr.end; pa += 4096) {
         uint64_t alias_pa = pa ^ alias;
         //printf("pa 0x%09jx alias_candidate 0x%09jx\n", pa, alias_pa);
-        int ret = check_alias(pa, alias_pa, &cfg, false ); 
+        int ret = check_alias(pa, alias_pa, &cfg, false); 
         if (ret == CHECK_ALIAS_ERR_NO_ALIAS) {
             df[df_next] = pa;
             df_next += 1;

@@ -104,7 +104,7 @@ int run(uint64_t rmp_start, uint64_t rmp_end, char* dump_path) {
   rmp_entry_t* manip_entry = (rmp_entry_t*)buf2;
 
   printf("Orig Entry Raw: ");
-  hexdump((uint8_t*)orig_entry, sizeof(rmp_entry_t) );
+  hexdump((uint8_t*)orig_entry, sizeof(rmp_entry_t));
   printf("Manip Entry Raw: ");
   hexdump((uint8_t*) manip_entry, sizeof(rmp_entry_t));
 

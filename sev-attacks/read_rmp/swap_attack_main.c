@@ -198,7 +198,7 @@ int write_rmp_by_hpa(uint64_t pa_rmp_start, uint64_t pa_rmp_end, uint64_t target
 
   if (!rmp_entries_eq(*got_manip_entry, *manip_entry)){
     err_log("RMP updated through alias went wrong!\n");
-    dump_rmp_entry("\tExpected\t", *manip_entry , stderr );
+    dump_rmp_entry("\tExpected\t", *manip_entry , stderr);
     dump_rmp_entry("\tGot\t\t", *got_manip_entry, stderr);
     goto error;
   }
@@ -266,7 +266,7 @@ int debug_print_spte_range(uint64_t qemu_pid, uint64_t gpa_start, uint64_t gpa_e
       return -1;
     }
     printf("gpa 0x%jx : spte_raw 0x%jx, spte_hpa 0x%jx, ps bit set? %d\n",
-       gpa, spte_raw, spte_hpa, (spte_raw & page_size_bit_mask) != 0 );
+       gpa, spte_raw, spte_hpa, (spte_raw & page_size_bit_mask) != 0);
   }
   return 0;
 }

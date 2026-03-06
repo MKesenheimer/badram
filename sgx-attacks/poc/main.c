@@ -55,12 +55,12 @@ int main( int argc, char **argv )
 
     info_event("Creating enclave...");
     SGX_ASSERT( sgx_create_enclave( "./Enclave/encl.so", /*debug=*/DBG_ENCL,
-                                    NULL, NULL, &eid, NULL ) );
+                                    NULL, NULL, &eid, NULL ));
 
     // Get the va of the buffer and translate it to its pa
     unsigned char *buffer;
-    SGX_ASSERT( initialize_buffer(eid) );
-    SGX_ASSERT( get_buffer_addr(eid, (void*)&buffer) );
+    SGX_ASSERT( initialize_buffer(eid));
+    SGX_ASSERT( get_buffer_addr(eid, (void*)&buffer));
 
     address_mapping_t *map = get_mappings(buffer);
     uint64_t pa = phys_address(map, PAGE);
@@ -83,7 +83,7 @@ int main( int argc, char **argv )
     // `write_to_buffer` will increment the value at the given offset
     int offset = rand() % 4096;  // Generate random offset
     printf("Modifying enclave buffer at offset %#05x\n", offset);
-    SGX_ASSERT( write_to_buffer(eid, offset) );
+    SGX_ASSERT( write_to_buffer(eid, offset));
 
     printf("Comparing EPC contents for changes\n");
     if (memcpy_frompa(epc_buf2, alias, ALLOC_SIZE, &stats, true)) {
@@ -101,7 +101,7 @@ int main( int argc, char **argv )
         }
     }
 
-    SGX_ASSERT( sgx_destroy_enclave( eid ) );
+    SGX_ASSERT( sgx_destroy_enclave( eid ));
 
     info_event("Done.");
 
