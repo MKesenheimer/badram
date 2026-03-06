@@ -94,7 +94,7 @@ int run(struct arguments args) {
     mem_range_t* mr = NULL;
     uint64_t* aliases = NULL;
     size_t len;
-    if( parse_csv(args.alias_file_path, &mr , &aliases , &len ) ) {
+    if(parse_csv(args.alias_file_path, &mr, &aliases, &len)) {
         err_log("Failed to parse aliases from %s\n", args.alias_file_path);
         return -1;
     }
@@ -113,21 +113,21 @@ int run(struct arguments args) {
         printf("[%ju,%ju[ : Checking MemRange{.start=0x%09jx .end=0x%09jx} %0.4f GiB, alias_mask=0x%09jx\n",
             i, len, mr[i].start, mr[i].end, mr_size_gib, aliases[i]);
 
-        if( test_mem_range(mr[i], aliases[i], &stats, args)) {
+        if(test_mem_range(mr[i], aliases[i], &stats, args)) {
             err_log("test_mem_range failed\n");
             goto error;
         }
         double access_err_percentage = stats.access_errors / (double)stats.total_pages * 100;
-        if( stats.disfunct_pa_len != 0 ) {
+        if(stats.disfunct_pa_len != 0) {
             double disfunct_percentage = stats.disfunct_pa_len / (double)stats.total_pages * 100;
             printf("MemRange{.start=0x%09jx .end=0x%09jx} alias 0x%09jx did not work for %0.2f%% of addrs. Access errors for %0.2f%% of addrs\n",
                 mr[i].start, mr[i].end, aliases[i], disfunct_percentage, access_err_percentage);
             size_t print_limit = stats.disfunct_pa_len;
-            if( !args.verbose && print_limit > 10) {
+            if(!args.verbose && print_limit > 10) {
                 printf("Limiting output to 10, start with verbose flag to get all %ju addrs\n", stats.disfunct_pa_len);
                 print_limit = 10;
             }
-            for(size_t j = 0; j < print_limit; j++ ) {
+            for(size_t j = 0; j < print_limit; j++) {
                 printf("\t0x%09jx\n", stats.disfunct_pa[j]);
             }
         } else {

@@ -15,7 +15,7 @@ int write_csv(char* path, mem_range_t* mr, uint64_t* alias_masks,  size_t len) {
   }
   //write csv data
   for(size_t i = 0; i < len; i++) {
-    if( -1 == fprintf(f, "0x%jx,0x%jx,0x%jx\n", mr[i].start, mr[i].end, alias_masks[i])) {
+    if (-1 == fprintf(f, "0x%jx,0x%jx,0x%jx\n", mr[i].start, mr[i].end, alias_masks[i])) {
       err_log("failed to write : %s\n", strerror(errno));
       fclose(f);
       return -1;
@@ -45,40 +45,38 @@ int parse_csv(char* path, mem_range_t** out_mr, uint64_t** out_alias_masks, size
   uint64_t dummy;
   size_t buf_bytes = 512;
   buf = (char*)malloc(buf_bytes);
-  if( fgets(buf, buf_bytes, f) == NULL ) {
+  if (fgets(buf, buf_bytes, f) == NULL) {
     err_log("Failed to read header row : %s\n", strerror(errno));
     goto error;
   }
-  if( ferror(f) ) {
+  if (ferror(f)) {
     err_log("Error reading from %s : %s\n", path, strerror(errno));
     goto error;
   }
   while(  3 == fscanf(f, "0x%jx,0x%jx,0x%jx\n", &dummy, &dummy, &dummy )) {
     len += 1;
   }
-  if( ferror(f) ) {
+  if (ferror(f)) {
     err_log("Error reading from %s : %s\n", path, strerror(errno));
     goto error;
   }
-  if( fseek(f, 0, SEEK_SET)) {
+  if (fseek(f, 0, SEEK_SET)) {
     err_log("Error resetting file position : %s\n", strerror(errno));
     goto error;
   }
-  if( len < 1 ) {
+  if (len < 1) {
     err_log("Input file %s does not contain any entries\n", path);
     goto error;
   }
 
-
-
   mr = (mem_range_t*)malloc(sizeof(mem_range_t) * len);
   alias_masks = (uint64_t*)malloc(sizeof(uint64_t) * len);
   idx = 0;
-  if( fgets(buf, buf_bytes, f) == NULL ) {
+  if (fgets(buf, buf_bytes, f) == NULL) {
     err_log("Failed to read header row : %s\n", strerror(errno));
     goto error;
   }
-  if( ferror(f) ) {
+  if (ferror(f)) {
     err_log("Error reading from %s : %s\n", path, strerror(errno));
     goto error;
   }
@@ -87,17 +85,17 @@ int parse_csv(char* path, mem_range_t** out_mr, uint64_t** out_alias_masks, size
     memcpy(mr[idx].name, dummy_name, strlen(dummy_name));
     idx += 1;
   }
-  if( ferror(f) ) {
+  if (ferror(f)) {
     err_log("Error reading from %s : %s\n", path, strerror(errno));
     goto error;
   }
-  if( idx != len ) {
+  if (idx != len) {
     err_log("Expected to read %ju entries but got %ju\n", len, idx);
     goto error;
   }
 
   *out_len = len;
-  *out_mr =mr;
+  *out_mr = mr;
   *out_alias_masks = alias_masks;
   
   
@@ -105,19 +103,18 @@ goto cleanup;
 error:
   retval = -1;
   //only free on error, otherwise we return them in output arg
-  if( mr ) {
+  if (mr) {
     free(mr);
   }
-  if( alias_masks ) {
+  if (alias_masks) {
     free(alias_masks);
   }
 cleanup:
   if(f) {
     fclose(f);
   }
-  if( buf ) {
+  if (buf) {
     free(buf);
   }
-  return retval;
-  
+  return retval; 
 }
