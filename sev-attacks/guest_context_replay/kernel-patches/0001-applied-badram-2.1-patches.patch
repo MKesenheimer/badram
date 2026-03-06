@@ -201,7 +201,7 @@ index b2832c381d42..4e7a2bf283d2 100644
 +	//our fake page fault will use "not present" as its error code
 +	u32 ec = PFERR_PRESENT_BIT;
 +	int ret;
-+	for(idx = 0; idx < sizeof(badram_remap_req.gfns)/sizeof(badram_remap_req.gfns[0]); idx++) {
++	for (idx = 0; idx < sizeof(badram_remap_req.gfns)/sizeof(badram_remap_req.gfns[0]); idx++) {
 +		
 +		struct kvm_page_fault fault = {
 +			.addr = badram_remap_req.gfns[idx] << PAGE_SHIFT ,
@@ -286,9 +286,9 @@ index b2832c381d42..4e7a2bf283d2 100644
 +		printk("%s:%d %s : acking pause requeted, waiting for resume request...\n", __FILE__, __LINE__, __FUNCTION__);
 +		//busy wait
 +		spin_unlock(&badram_pause_vm_lock);
-+		while(1) {
++		while (1) {
 +			spin_lock(&badram_pause_vm_lock);
-+			if(badram_pause_vm.status == BPV_RESUME_REQUESTED) {
++			if (badram_pause_vm.status == BPV_RESUME_REQUESTED) {
 +				spin_unlock(&badram_pause_vm_lock);
 +				printk("%s:%d %s saw resume request, continuing exit handling\n", __FILE__, __LINE__, __FUNCTION__);
 +				//N.B. we only update status to BPV_RESUMED, in the VM enter code
@@ -302,13 +302,13 @@ index b2832c381d42..4e7a2bf283d2 100644
 +
 +	
 +	if (exit_fastpath != EXIT_FASTPATH_NONE) {
-+		if(invoked_badram) printk("%s:%d returning from exit handler (fastpath)\n", __FILE__, __LINE__);
++		if (invoked_badram) printk("%s:%d returning from exit handler (fastpath)\n", __FILE__, __LINE__);
  		return 1;
 +	}
  
 -	return svm_invoke_exit_handler(vcpu, exit_code);
 +	rc = svm_invoke_exit_handler(vcpu, exit_code);
-+	if(invoked_badram) printk("%s:%d returning from exit handler with rc %d", __FILE__, __LINE__, rc);
++	if (invoked_badram) printk("%s:%d returning from exit handler with rc %d", __FILE__, __LINE__, rc);
 +	return rc;
  }
  
@@ -318,7 +318,7 @@ index b2832c381d42..4e7a2bf283d2 100644
  	bool spec_ctrl_intercepted = msr_write_intercepted(vcpu, MSR_IA32_SPEC_CTRL);
  
 +	spin_lock(&badram_pause_vm_lock);
-+	if((badram_pause_vm.target_kvm == vcpu->kvm) && (badram_pause_vm.status == BPV_RESUME_REQUESTED)) {
++	if ((badram_pause_vm.target_kvm == vcpu->kvm) && (badram_pause_vm.status == BPV_RESUME_REQUESTED)) {
 +		printk("%s:%d %s : updating state to resumed\n", __FILE__, __LINE__, __FUNCTION__ );
 +		badram_pause_vm.status = BPV_RESUMED;
 +	}
@@ -648,7 +648,7 @@ index eb0dfcd157f4..0e0c8edf079d 100644
 +				spin_unlock(&badram_pause_vm_lock);
 +				printk("%s:%d requested pause, waiting for ack...\n", __FILE__, __LINE__);
 +				//busy wait for next exit to happen
-+				while(1) {
++				while (1) {
 +					spin_lock(&badram_pause_vm_lock);
 +					if (badram_pause_vm.status == BPV_PAUSED) {
 +						spin_unlock(&badram_pause_vm_lock);
@@ -699,7 +699,7 @@ index eb0dfcd157f4..0e0c8edf079d 100644
 +				printk("%s:%d Requested resume, waiting for ack...\n", __FILE__, __LINE__);
 +
 +				//busy wait for resume to happen
-+				while(1) {
++				while (1) {
 +					spin_lock(&badram_pause_vm_lock);
 +					if (badram_pause_vm.status == BPV_RESUMED) {
 +						badram_pause_vm.status = BPV_INVALID;
@@ -770,7 +770,7 @@ index eb0dfcd157f4..0e0c8edf079d 100644
 +				is_tdp = vcpu->arch.mmu->page_fault == kvm_tdp_page_fault;
 +				printk("%s:%d is_tdp=%d\n", __FILE__, __LINE__, is_tdp);
 +				have_nx_workaround = is_nx_huge_page_enabled(kvm);
-+				for(idx = 0; idx < sizeof(params.gfns)/sizeof(params.gfns[0]); idx++) {	
++				for (idx = 0; idx < sizeof(params.gfns)/sizeof(params.gfns[0]); idx++) {	
 +					memslots[idx] = kvm_vcpu_gfn_to_memslot(vcpu, params.gfns[idx] );
 +					if (!memslots[idx] || memslots[idx]->flags & KVM_MEMSLOT_INVALID) {
 +						printk("%s:%d error getting memslot for gfn 0x%llx\n", __FILE__, __LINE__, params.gfns[idx]);

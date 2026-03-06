@@ -60,7 +60,7 @@ index 0b9f0b636d3a..49b69ec72113 100644
 +int remove_svm_details(struct kvm* kvm) {
 +  svm_details_t* e;
 +  e = get_svm_details(kvm);
-+  if(!e) {
++  if (!e) {
 +    printk("%s:%d %s : entry does not exist", __FILE__, __LINE__, __FUNCTION__);
 +    return -1;
 +  }
@@ -129,7 +129,7 @@ index 681ab6778547..d2ff183e36c3 100644
 -	if (!context)
 -		return NULL;
 +	//Only use our fixed guest context page if no one else is using it
-+	if(badram_fixed_gctx_vaddr  && badram_fixed_gctx_refcount == 0) {
++	if (badram_fixed_gctx_vaddr  && badram_fixed_gctx_refcount == 0) {
 +		badram_fixed_gctx_refcount += 1;
 +		printk("%s:%d %s : Using badram_fixed_gctx_pa with refcount = %d\n",
 +			__FILE__, __LINE__, __FUNCTION__, badram_fixed_gctx_refcount);
@@ -144,7 +144,7 @@ index 681ab6778547..d2ff183e36c3 100644
 +		}
 +		//If this is the first time we allocate a guest context, use this as
 +		//our fixed guest context
-+		if(!badram_fixed_gctx_vaddr) {
++		if (!badram_fixed_gctx_vaddr) {
 +			badram_fixed_gctx_vaddr = context;
 +			badram_fixed_gctx_refcount += 1;
 +		}
@@ -197,7 +197,7 @@ index 681ab6778547..d2ff183e36c3 100644
 +*/
 +static int raw_memcpy_to_pa(uint64_t pa, uint8_t* data, uint64_t len) {
 +	void* mapping =  memremap(pa, PAGE_SIZE, MEMREMAP_WB | MEMREMAP_WT | MEMREMAP_WC | MEMREMAP_ENC | MEMREMAP_DEC);
-+	if(!mapping){
++	if (!mapping){
 +		printk("%s:%d %s : failed to map 0x%llx\n", __FILE__, __LINE__, __FUNCTION__, pa);
 +		return -1;
 +	}
@@ -219,11 +219,11 @@ index 681ab6778547..d2ff183e36c3 100644
  
 +	//If requested perform the replay
 +	spin_lock(&badram_gctx_replay_lock);
-+	if(badram_gctx_replay.do_replay) {
++	if (badram_gctx_replay.do_replay) {
 +		uint64_t gctx_pa = __pa(sev->snp_context);
 +		badram_gctx_replay_t* r = &badram_gctx_replay;
 +
-+		if(gctx_pa == r->expected_gctx_pa) {
++		if (gctx_pa == r->expected_gctx_pa) {
 +			uint64_t pa = r->gctx_alias_pa + r->gctx_offset;
 +			if (raw_memcpy_to_pa(pa, r->data, r->data_len)) {
 +				printk("%s:%d %s : raw_memcpy_to_pa for pa 0x%llx failed\n",
@@ -253,10 +253,10 @@ index 681ab6778547..d2ff183e36c3 100644
 -	snp_free_firmware_page(sev->snp_context);
 +	//Only free the context page if it is not our fixed gctx page
 +	//For the fixed gctx page, decrease the refcount value by one
-+	if(badram_fixed_gctx_vaddr == sev->snp_context) {
++	if (badram_fixed_gctx_vaddr == sev->snp_context) {
 +		printk("%s:%d %s : not freeing fixed gctx\n", __FILE__, __LINE__, __FUNCTION__);
 +		badram_fixed_gctx_refcount -= 1;
-+		if(badram_fixed_gctx_refcount < 0) {
++		if (badram_fixed_gctx_refcount < 0) {
 +			printk("%s:%d %s : badram_fixed_gctx_refcount dropped below zero!\n",
 +				__FILE__, __LINE__, __FUNCTION__);
 +		}
@@ -420,7 +420,7 @@ index 6ca8acb801c3..85110e0ba47b 100644
 +				return -EINVAL;
 +			}
 +			replay_data = vmalloc(params.data_len);
-+			if(copy_from_user(replay_data, params.data, params.data_len)) {		
++			if (copy_from_user(replay_data, params.data, params.data_len)) {		
 +				printk("%s:%d copy_from_user failed\n", __FILE__, __LINE__);
 +				return -EINVAL;
 +			}

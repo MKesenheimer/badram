@@ -141,7 +141,7 @@ int parse_mem_layout(mem_range_t** ranges, size_t* range_len) {
     error:
         ret = -1;
     cleanup:
-    if(iomem) {
+    if (iomem) {
         fclose(iomem);
     }
     return ret;

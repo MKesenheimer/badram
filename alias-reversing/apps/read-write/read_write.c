@@ -155,7 +155,7 @@ int main(int argc, char** argv) {
         .access_reserved = false,
         .verbosity = 0
     };
-    if(argp_parse(&argp, argc, argv, 0, 0, &args)) {
+    if (argp_parse(&argp, argc, argv, 0, 0, &args)) {
         printf("Failed to parse arguments\n");
         return -1;
     }

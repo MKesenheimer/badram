@@ -170,7 +170,7 @@ clenaup:
   if (socket_fd != -1) {
     close(socket_fd);
   }
-  if(buf) {
+  if (buf) {
     free(buf);
   }
   return ret;

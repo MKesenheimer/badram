@@ -20,7 +20,7 @@ int get_rand_bytes(void *p, size_t len) {
 }
 
 void hexdump(uint8_t* a, const size_t n) {
-	for(size_t i = 0; i < n; i++) {
+	for (size_t i = 0; i < n; i++) {
     if (a[i]) printf("\x1b[31m%02x \x1b[0m", a[i]);
     else printf("%02x ", a[i]);
     if (i % 64 == 63) printf("\n");
@@ -44,7 +44,7 @@ int do_stroul(char *str, int base, uint64_t *result) {
 }
 
 int get_alias(uint64_t pa, mem_range_t* mrs, uint64_t* alias_masks, size_t len, uint64_t* out_alias) {
-  for(size_t i = 0; i < len; i++) {
+  for (size_t i = 0; i < len; i++) {
     if ((pa >= mrs[i].start) && (pa < mrs[i].end)) {
       *out_alias = pa ^ alias_masks[i];
       return 0;

@@ -47,7 +47,7 @@ int ioctl_gpa_to_hpa(uint64_t gpa, uint64_t qemu_pid, uint64_t* out_hpa) {
         .out_hpa = 0,
     };
 
-    if(ioctl(_kvm_fd, KVM_BADRAM_GPA_TO_HPA, &args) < 0) {
+    if (ioctl(_kvm_fd, KVM_BADRAM_GPA_TO_HPA, &args) < 0) {
         err_log("%s : %s\n", ioctl_err_prefix, strerror(errno));
         goto error;
     }
@@ -73,7 +73,7 @@ int ioctl_tlb_flush(uint64_t qemu_pid) {
         .qemupid = qemu_pid,
     };
 
-    if(ioctl(_kvm_fd, KVM_BADRAM_FLUSH_TLB, &args) < 0) {
+    if (ioctl(_kvm_fd, KVM_BADRAM_FLUSH_TLB, &args) < 0) {
         err_log("%s : %s\n", ioctl_err_prefix, strerror(errno));
         goto error;
     }
@@ -98,7 +98,7 @@ int ioctl_remap_gfns(uint64_t qemu_pid, uint64_t gfn1, uint64_t pfn1, uint64_t g
         .new_pfns = {pfn1, pfn2},
     };
 
-    if(ioctl(_kvm_fd, KVM_BADRAM_REMAP_GFN, &args) < 0) {
+    if (ioctl(_kvm_fd, KVM_BADRAM_REMAP_GFN, &args) < 0) {
         err_log("%s : %s\n", ioctl_err_prefix, strerror(errno));
         goto error;
     }
@@ -127,7 +127,7 @@ int ioctl_get_spte(uint64_t qemu_pid, uint64_t gpa, pg_level_t goal_pt_level,
     	.out_hpa =0,
     };
 
-    if(ioctl(_kvm_fd, KVM_BADRAM_GET_PT_ENTRY, &args) < 0) {
+    if (ioctl(_kvm_fd, KVM_BADRAM_GET_PT_ENTRY, &args) < 0) {
         err_log("%s : %s\n", ioctl_err_prefix, strerror(errno));
         goto error;
     }
@@ -150,7 +150,7 @@ int ioctl_pause_vm_blocking(uint64_t qemu_pid) {
     	.qemupid = qemu_pid,
     };
 
-    if(ioctl(_kvm_fd, KVM_BADRAM_PAUSE_VM , &args) < 0) {
+    if (ioctl(_kvm_fd, KVM_BADRAM_PAUSE_VM , &args) < 0) {
         err_log("%s : %s\n", ioctl_err_prefix, strerror(errno));
         goto error;
     }
@@ -171,7 +171,7 @@ int ioctl_resume_vm_blocking(uint64_t qemu_pid) {
     	.qemupid = qemu_pid,
     };
 
-    if(ioctl(_kvm_fd, KVM_BADRAM_RESUME_VM , &args) < 0) {
+    if (ioctl(_kvm_fd, KVM_BADRAM_RESUME_VM , &args) < 0) {
         err_log("%s : %s\n", ioctl_err_prefix, strerror(errno));
         goto error;
     }

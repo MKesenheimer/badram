@@ -2,19 +2,19 @@
 
 int write_csv(char* path, mem_range_t* mr, uint64_t* alias_masks,  size_t len) {
   FILE* f = fopen(path, "w");
-  if(!f) {
+  if (!f) {
     err_log("Failed to create file %s : %s", path, strerror(errno))
     return -1;
   }
 
   //write csv header
-  if(-1 == fprintf(f,"#start pa, end pa, alias xor mask\n")){
+  if (-1 == fprintf(f,"#start pa, end pa, alias xor mask\n")){
     err_log("failed to write : %s\n", strerror(errno));
     fclose(f);
     return -1;
   }
   //write csv data
-  for(size_t i = 0; i < len; i++) {
+  for (size_t i = 0; i < len; i++) {
     if (-1 == fprintf(f, "0x%jx,0x%jx,0x%jx\n", mr[i].start, mr[i].end, alias_masks[i])) {
       err_log("failed to write : %s\n", strerror(errno));
       fclose(f);
@@ -34,7 +34,7 @@ int parse_csv(char* path, mem_range_t** out_mr, uint64_t** out_alias_masks, size
   uint64_t* alias_masks = NULL;
   size_t idx;
   int retval = 0;
-  if(!f) {
+  if (!f) {
     err_log("Failed to open %s for reading : %s\n", path, strerror(errno));
     return -1;
   }
@@ -110,7 +110,7 @@ error:
     free(alias_masks);
   }
 cleanup:
-  if(f) {
+  if (f) {
     fclose(f);
   }
   if (buf) {

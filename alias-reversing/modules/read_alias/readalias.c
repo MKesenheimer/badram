@@ -31,7 +31,7 @@ static int _get_rand_bytes(void *p, size_t len) {
 
 static void _hexdump(uint8_t* a, const size_t n)
 {
-	for(size_t i = 0; i < n; i++) {
+	for (size_t i = 0; i < n; i++) {
     if (a[i]) printf("\x1b[31m%02x \x1b[0m", a[i]);
     else printf("%02x ", a[i]);
     if (i % 64 == 63) printf("\n");
@@ -131,7 +131,7 @@ int __memcpy_frompa(void* dst, uint64_t src, size_t count, enum flush_method fm,
         break;
       case 2:
         out_stats->map_failed += 1;
-        if(err_on_access_fail) {
+        if (err_on_access_fail) {
           return -1;
         }
         break;
@@ -244,36 +244,36 @@ int check_alias(uint64_t source_pa, uint64_t alias_candidate, struct pamemcpy_cf
     uint8_t m1[msg_len], m2[msg_len], mxor[msg_len], buf1[msg_len], buf2[msg_len], bufxor[msg_len];
     _get_rand_bytes(m1, msg_len);
     _get_rand_bytes(m2, msg_len);
-    for(size_t i = 0; i < msg_len; i++) {
+    for (size_t i = 0; i < msg_len; i++) {
         mxor[i] = m1[i] ^ m2[i];
     }
 
     if (flush_ext(source_pa, msg_len, memcpy_cfg)) {
-        if(verbose) err_log("flush_range for 0x%jx failed\n", source_pa);
+        if (verbose) err_log("flush_range for 0x%jx failed\n", source_pa);
         return CHECK_ALIAS_ERR_ACCESS;
     }
 
     if (memcpy_topa_ext(source_pa, m1, msg_len, memcpy_cfg)) {
-        if(verbose) err_log("memcpy_topa for 0x%jx failed\n", source_pa);
+        if (verbose) err_log("memcpy_topa for 0x%jx failed\n", source_pa);
         return CHECK_ALIAS_ERR_ACCESS;
     }
 
     //read alias_candidate_pa
     if (memcpy_frompa_ext(buf1, alias_candidate, msg_len, memcpy_cfg)) {
-        if(verbose) err_log("memcpy_frompa for 0x%jx failed\n", alias_candidate);
+        if (verbose) err_log("memcpy_frompa for 0x%jx failed\n", alias_candidate);
         return CHECK_ALIAS_ERR_ACCESS;
     }
 
 
     //write m2 to source_pa
     if (memcpy_topa_ext(source_pa, m2, msg_len, memcpy_cfg)) {
-        if(verbose) err_log("memcpy_topa for source_pa 0x%jx failed\n", source_pa);
+        if (verbose) err_log("memcpy_topa for source_pa 0x%jx failed\n", source_pa);
         return CHECK_ALIAS_ERR_ACCESS;
     }
 
     //read from target_pa
     if (memcpy_frompa_ext(buf2, alias_candidate, msg_len, memcpy_cfg)) {
-        if(verbose) err_log("memcpy_frompa for target_pa 0x%jx failed\n", alias_candidate);
+        if (verbose) err_log("memcpy_frompa for target_pa 0x%jx failed\n", alias_candidate);
         return CHECK_ALIAS_ERR_ACCESS;
     }
 
@@ -302,7 +302,7 @@ int check_alias(uint64_t source_pa, uint64_t alias_candidate, struct pamemcpy_cf
 #endif
            
     int found_matching_xor = 1;
-    for(size_t i = 0; i < msg_len; i++) {
+    for (size_t i = 0; i < msg_len; i++) {
         bufxor[i] = buf1[i] ^ buf2[i];
         if (mxor[i] != bufxor[i]) {
             found_matching_xor = 0;
@@ -314,7 +314,7 @@ int check_alias(uint64_t source_pa, uint64_t alias_candidate, struct pamemcpy_cf
 #endif
 
     if (found_matching_xor) {
-        if(verbose) {
+        if (verbose) {
             uint64_t pa_xor = source_pa ^ alias_candidate;
             printf("Found alias for 0x%jx at 0x%jx! xor diff = 0x%jx\n", source_pa, alias_candidate, pa_xor);
             printf("buf1: ");

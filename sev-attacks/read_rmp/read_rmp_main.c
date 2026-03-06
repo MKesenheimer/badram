@@ -41,7 +41,7 @@ int run(uint64_t rmp_start, uint64_t rmp_end, char* dump_path) {
   FILE* dump_file = stdout;
   if (dump_path) {
     dump_file = fopen(dump_path, "w");
-    if(!dump_file) {
+    if (!dump_file) {
       err_log("failed to create file %s for writing : %s\n", dump_path, strerror(errno))
       goto error;
     }
@@ -143,11 +143,11 @@ int main(int argc, char** argv) {
     return -1;
   }
   uint64_t rmp_start,rmp_end;
-  if(do_stroul(argv[1], 0, &rmp_start)) {
+  if (do_stroul(argv[1], 0, &rmp_start)) {
     printf("Failed to parse '%s' as number\n", argv[1]);
     return -1;
   }
-  if(do_stroul(argv[2], 0 , &rmp_end )) {
+  if (do_stroul(argv[2], 0 , &rmp_end )) {
     printf("Failed to convert '%s' to number\n", argv[2]);
     return -1;
   }

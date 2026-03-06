@@ -26,12 +26,12 @@ enum mapping_type {
  * @returns valid mapping or NULL on error
 */
 void* custom_map(uint64_t pfn, enum mapping_type* out_mt, struct page** out_page) {
-  if(pfn_valid(pfn)) {
+  if (pfn_valid(pfn)) {
     *out_mt = MT_VMAP;
     return vmap(out_page, 1, 0, PAGE_KERNEL_IO_NOCACHE);
   }
   void* mapping = ioremap(pfn << PAGE_SHIFT, PAGE_SIZE);
-  if(mapping) {
+  if (mapping) {
     *out_mt = MT_IOREMAP;
     return mapping;
   }

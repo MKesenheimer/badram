@@ -88,9 +88,9 @@ int dump_tmr(struct app app) {
 	//depending to cli flag this is either the true pa or the alias
 	uint64_t tmr_access_pa;
 
-	if(app.args.read_via_alias) {
+	if (app.args.read_via_alias) {
 		uint64_t alias_tmr_pa;
-		if(get_alias(tmr_pa, app.mrs , app.alias_masks , app.mrs_len, &alias_tmr_pa)) {
+		if (get_alias(tmr_pa, app.mrs , app.alias_masks , app.mrs_len, &alias_tmr_pa)) {
 			err_log("failed to get alias for tmr_pa 0x%jx\n", tmr_pa);
 			goto error;
 		}
@@ -104,21 +104,21 @@ int dump_tmr(struct app app) {
 	tmr_content = (uint8_t*)malloc(app.args.tmr_bytes);
 	printf("Copying TMR via  0x%jx bytes 0x%jx aliased? %d\n", tmr_access_pa, tmr_bytes,
 		app.args.read_via_alias);
-	if(wbinvd_ac()) {
+	if (wbinvd_ac()) {
 		err_log("wbivnd failed\n");
 		goto error;
 	}
-	if(memcpy_frompa(tmr_content, tmr_access_pa, tmr_bytes , &stats , true)) {
+	if (memcpy_frompa(tmr_content, tmr_access_pa, tmr_bytes , &stats , true)) {
 		err_log("failed to read from tmr\n");
 		goto error;
 	}
-	if(wbinvd_ac()) {
+	if (wbinvd_ac()) {
 		err_log("wbivnd failed\n");
 		goto error;
 	}
 	
 	f = fopen(app.args.tmr_dump_path,"wb");
-	if(!f) {
+	if (!f) {
 		err_log("failed to create file %s : %s\n", app.args.tmr_dump_path, strerror(errno));
 		goto error;
 	}
@@ -133,13 +133,13 @@ int dump_tmr(struct app app) {
 error:
 	ret = -1;
 cleanup:
-	if(f) fclose(f);
-	if(tmr_content) free(tmr_content);
+	if (f) fclose(f);
+	if (tmr_content) free(tmr_content);
 	return ret;
 }
 
 int mode_dump(struct app app) {
-	if(dump_tmr(app)) {
+	if (dump_tmr(app)) {
 		err_log("failed to dump tmr content\n");
 		return -1;
 	}
@@ -168,7 +168,7 @@ int mode_replay(struct app app) {
 
 	//Phase (1)
 	printf("Pausing VM...\n");
-	if(ioctl_pause_vm_blocking(app.args.qemu_pid)) {
+	if (ioctl_pause_vm_blocking(app.args.qemu_pid)) {
 		err_log("ioctl_pause_vm_blocking for qemu pid %ju failed\n", app.args.qemu_pid);
 		goto error;
 	}
@@ -176,13 +176,13 @@ int mode_replay(struct app app) {
 	printf("VM paused!\nCapturing Register State\n");
 
 	uint64_t alias_tmr_pa;
-	if(get_alias(tmr_pa, app.mrs , app.alias_masks , app.mrs_len, &alias_tmr_pa)) {
+	if (get_alias(tmr_pa, app.mrs , app.alias_masks , app.mrs_len, &alias_tmr_pa)) {
 		err_log("failed to get alias for tmr_pa 0x%jx\n", tmr_pa);
 		goto error;
 	}
 	printf("tmr_pa\t\t0x%jx\nalias_tmr_pa\t0x%jx\n", tmr_pa, alias_tmr_pa);
 
-	if(app.args.read_via_alias) {
+	if (app.args.read_via_alias) {
 		tmr_read_pa = alias_tmr_pa;
 	} else {
 		tmr_read_pa = tmr_pa;
@@ -192,15 +192,15 @@ int mode_replay(struct app app) {
 	state_A_tmr_content = (uint8_t*)malloc(app.args.tmr_bytes);
 	printf("Copying TMR via  0x%jx bytes 0x%jx aliased? %d\n", tmr_read_pa, tmr_bytes,
 		app.args.read_via_alias);
-	if(wbinvd_ac()) {
+	if (wbinvd_ac()) {
 		err_log("wbivnd failed\n");
 		goto error;
 	}
-	if(memcpy_frompa(state_A_tmr_content, tmr_read_pa, tmr_bytes , &stats , true)) {
+	if (memcpy_frompa(state_A_tmr_content, tmr_read_pa, tmr_bytes , &stats , true)) {
 		err_log("failed to read from tmr\n");
 		goto error;
 	}
-	if(wbinvd_ac()) {
+	if (wbinvd_ac()) {
 		err_log("wbivnd failed\n");
 		goto error;
 	}
@@ -208,7 +208,7 @@ int mode_replay(struct app app) {
 
 	printf("Captured register state!\nResuming VM...\n");
 	vm_paused = false;
-	if(ioctl_resume_vm_blocking(app.args.qemu_pid)) {
+	if (ioctl_resume_vm_blocking(app.args.qemu_pid)) {
 		err_log("failed to unblock VM. GLHF :)\n");
 		goto error;
 	}
@@ -220,7 +220,7 @@ int mode_replay(struct app app) {
 
 
 	printf("Blocking VM 2nd time...\n");	
-	if(ioctl_pause_vm_blocking(app.args.qemu_pid)) {
+	if (ioctl_pause_vm_blocking(app.args.qemu_pid)) {
 		err_log("ioctl_pause_vm_blocking for qemu pid %ju failed\n", app.args.qemu_pid);
 		goto error;
 	}
@@ -230,15 +230,15 @@ int mode_replay(struct app app) {
 	state_B_tmr_content = (uint8_t*)malloc(app.args.tmr_bytes);
 	printf("Copying TMR via  0x%jx bytes 0x%jx aliased? %d\n", tmr_read_pa, tmr_bytes,
 		app.args.read_via_alias);
-	if(wbinvd_ac()) {
+	if (wbinvd_ac()) {
 		err_log("wbivnd failed\n");
 		goto error;
 	}
-	if(memcpy_frompa(state_B_tmr_content, tmr_read_pa, tmr_bytes , &stats , true)) {
+	if (memcpy_frompa(state_B_tmr_content, tmr_read_pa, tmr_bytes , &stats , true)) {
 		err_log("failed to read from tmr\n");
 		goto error;
 	}
-	if(wbinvd_ac()) {
+	if (wbinvd_ac()) {
 		err_log("wbivnd failed\n");
 		goto error;
 	}
@@ -255,18 +255,18 @@ int mode_replay(struct app app) {
 	memset(state_A_tmr_content , 0x0, app.args.tmr_bytes);
 	
 
-	if(memcpy_topa(alias_tmr_pa, state_A_tmr_content, tmr_bytes , &stats , true)) {
+	if (memcpy_topa(alias_tmr_pa, state_A_tmr_content, tmr_bytes , &stats , true)) {
 		err_log("failed to read from tmr\n");
 		goto error;
 	}
-	if(wbinvd_ac()) {
+	if (wbinvd_ac()) {
 		err_log("wbivnd failed\n");
 		goto error;
 	}
 
 	printf("Replayed register state!\nResuming VM...\n");
 	vm_paused = false;
-	if(ioctl_resume_vm_blocking(app.args.qemu_pid)) {
+	if (ioctl_resume_vm_blocking(app.args.qemu_pid)) {
 		err_log("failed to unblock VM. GLHF :)\n");
 	}
 	printf("VM resumed\n");
@@ -276,10 +276,10 @@ int mode_replay(struct app app) {
 error:
 	ret = -1;
 cleanup:
-	if(state_A_tmr_content) free(state_A_tmr_content);
-	if(state_B_tmr_content) free(state_B_tmr_content);
-	if(vm_paused) {
-		if(ioctl_resume_vm_blocking(app.args.qemu_pid)) {
+	if (state_A_tmr_content) free(state_A_tmr_content);
+	if (state_B_tmr_content) free(state_B_tmr_content);
+	if (vm_paused) {
+		if (ioctl_resume_vm_blocking(app.args.qemu_pid)) {
 			err_log("failed to unblock VM in clenaup path. GLHF :)\n");
 			ret = -1;
 		}
@@ -296,7 +296,7 @@ int run(struct arguments args) {
   uint64_t* alias_masks = NULL;
   size_t mrs_len;
 
-	if(open_kmod()) {
+	if (open_kmod()) {
 		err_log("failed to open readalias kernel module\n");
 		goto error;
 	}
@@ -316,13 +316,13 @@ int run(struct arguments args) {
 	switch (app.args.mode) {
 
     case MM_DUMP:
-			if(mode_dump(app)) {
+			if (mode_dump(app)) {
 				err_log("mode dump failed\n");
 				goto error;
 			}
 			break;
     case MM_REPLAY:
-			if(mode_replay(app)) {
+			if (mode_replay(app)) {
 				err_log("mode replay failed\n");
 				goto error;
 			}
@@ -338,8 +338,8 @@ error:
 	ret = -1;
 cleanup:
 	close_kmod();
-	if(mrs) free(mrs);
-	if(alias_masks) free(alias_masks);
+	if (mrs) free(mrs);
+	if (alias_masks) free(alias_masks);
 	return ret;
 }
 
@@ -366,13 +366,13 @@ static error_t parse_opt(int key, char* arg, struct argp_state* state) {
 			args->alias_file_path = arg;
 			break;
 		case 2:
-			if(do_stroul(arg, 0 ,&(args->tmr_pa_start) )) {
+			if (do_stroul(arg, 0 ,&(args->tmr_pa_start) )) {
 				err_log("failed to parse tmr_pa \"%s\" to number\n", arg);
 				return ARGP_ERR_UNKNOWN;
 			}
 			break;
 		case 3:
-			if(do_stroul(arg, 0 ,&(args->tmr_bytes) )) {
+			if (do_stroul(arg, 0 ,&(args->tmr_bytes) )) {
 				err_log("failed to parse tmr_bytes \"%s\" to number\n", arg);
 				return ARGP_ERR_UNKNOWN;
 			}
@@ -385,7 +385,7 @@ static error_t parse_opt(int key, char* arg, struct argp_state* state) {
 			break;
 		case 6: {
 				enum main_mode m = main_mode_from_str(arg);
-				if(m == MM_INVALID) {
+				if (m == MM_INVALID) {
 					err_log("invalid mode value \"%s\"", arg);
 					return ARGP_ERR_UNKNOWN;
 				}
@@ -393,7 +393,7 @@ static error_t parse_opt(int key, char* arg, struct argp_state* state) {
 			}
 			break;
 		case 7:
-			if(do_stroul(arg, 0, &(args->qemu_pid))) {
+			if (do_stroul(arg, 0, &(args->qemu_pid))) {
 				err_log("failed to parse qemu-pid value \"%s\" to number\n", arg);
 				return ARGP_ERR_UNKNOWN;
 			}
@@ -443,7 +443,7 @@ static struct argp argp = {
 int main(int argc, char** argv) {
 	struct arguments args = {0};
 	args.mode = MM_INVALID;
-	if(argp_parse(&argp, argc, argv, 0, 0, &args)) {
+	if (argp_parse(&argp, argc, argv, 0, 0, &args)) {
 		printf("Failed to parse arguments\n");
 		return -1;
 	}

@@ -21,7 +21,7 @@ typedef struct
 
 static void hexdump(uint8_t* a, const size_t n)
 {
-	for(size_t i = 0; i < n; i++) {
+	for (size_t i = 0; i < n; i++) {
     if (a[i]) printf("\x1b[31m%02x \x1b[0m", a[i]);
     else printf("%02x ", a[i]);
     if (i % 64 == 63) printf("\n");

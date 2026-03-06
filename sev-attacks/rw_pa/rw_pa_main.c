@@ -103,11 +103,11 @@ int write_to_target(struct app app) {
 
 	//open file with replay content and load content into buffer
 	f = fopen(app.args.file_path, "rb");
-	if(!f) {
+	if (!f) {
 		err_log("failed to open file %s : %s\n", app.args.file_path, strerror(errno));
 		goto error;
 	}
-	if(fseek(f, app.args.file_offset , SEEK_SET )) {
+	if (fseek(f, app.args.file_offset , SEEK_SET )) {
 		err_log("failed to seek to offset 0x%jx : %s\n", app.args.file_offset, strerror(errno));
 		goto error;
 	}
@@ -121,9 +121,9 @@ int write_to_target(struct app app) {
 	
 
 	//lookup alias if cli flag demands access via alias
-	if(app.args.use_alias) {
+	if (app.args.use_alias) {
 		uint64_t alias_target_pa;
-		if(get_alias(target_pa, app.mrs , app.alias_masks , app.mrs_len, &alias_target_pa)) {
+		if (get_alias(target_pa, app.mrs , app.alias_masks , app.mrs_len, &alias_target_pa)) {
 			err_log("failed to get alias for target_pa 0x%jx\n", target_pa);
 			goto error;
 		}
@@ -134,15 +134,15 @@ int write_to_target(struct app app) {
 	}
 
 	//copy data to target memory
-	if(wbinvd_ac()) {
+	if (wbinvd_ac()) {
 		err_log("wbivnd failed\n");
 		goto error;
 	}
-	if(memcpy_topa(access_pa, buffer, target_bytes , &stats , true)) {
+	if (memcpy_topa(access_pa, buffer, target_bytes , &stats , true)) {
 		err_log("failed to copy to 0x%jx bytes to pa 0x%jx\n", target_bytes, access_pa);
 		goto error;
 	}
-	if(wbinvd_ac()) {
+	if (wbinvd_ac()) {
 		err_log("wbivnd failed\n");
 		goto error;
 	}
@@ -153,8 +153,8 @@ int write_to_target(struct app app) {
 error:
 	ret = -1;
 cleanup:
-	if(f) fclose(f);
-	if(buffer) free(buffer);
+	if (f) fclose(f);
+	if (buffer) free(buffer);
 	return ret;
 }
 
@@ -171,9 +171,9 @@ int dump_target(struct app app) {
 	uint64_t access_pa;
 
 	//lookup alias if cli flag demands access via alias
-	if(app.args.use_alias) {
+	if (app.args.use_alias) {
 		uint64_t alias_target_pa;
-		if(get_alias(target_pa, app.mrs , app.alias_masks , app.mrs_len, &alias_target_pa)) {
+		if (get_alias(target_pa, app.mrs , app.alias_masks , app.mrs_len, &alias_target_pa)) {
 			err_log("failed to get alias for target_pa 0x%jx\n", target_pa);
 			goto error;
 		}
@@ -186,21 +186,21 @@ int dump_target(struct app app) {
 
 	//copy data from target memory into buffer
 	buffer = (uint8_t*)malloc(app.args.target_bytes);
-	if(wbinvd_ac()) {
+	if (wbinvd_ac()) {
 		err_log("wbivnd failed\n");
 		goto error;
 	}
-	if(memcpy_frompa(buffer, access_pa, target_bytes , &stats , true)) {
+	if (memcpy_frompa(buffer, access_pa, target_bytes , &stats , true)) {
 		err_log("failed to read from tmr\n");
 		goto error;
 	}
-	if(wbinvd_ac()) {
+	if (wbinvd_ac()) {
 		err_log("wbivnd failed\n");
 		goto error;
 	}
 	
 	f = fopen(app.args.file_path,"wb");
-	if(!f) {
+	if (!f) {
 		err_log("failed to create file %s : %s\n", app.args.file_path, strerror(errno));
 		goto error;
 	}
@@ -215,8 +215,8 @@ int dump_target(struct app app) {
 error:
 	ret = -1;
 cleanup:
-	if(f) fclose(f);
-	if(buffer) free(buffer);
+	if (f) fclose(f);
+	if (buffer) free(buffer);
 	return ret;
 }
 
@@ -231,7 +231,7 @@ int run(struct arguments args) {
   uint64_t* alias_masks = NULL;
   size_t mrs_len;
 
-	if(open_kmod()) {
+	if (open_kmod()) {
 		err_log("failed to open readalias kernel module\n");
 		goto error;
 	}
@@ -251,13 +251,13 @@ int run(struct arguments args) {
 	switch (app.args.mode) {
 
     case MM_DUMP:
-			if(dump_target(app)) {
+			if (dump_target(app)) {
 				err_log("mode dump failed\n");
 				goto error;
 			}
 			break;
     case MM_REPLAY:
-			if(write_to_target(app)) {
+			if (write_to_target(app)) {
 				err_log("mode replay failed\n");
 				goto error;
 			}
@@ -273,8 +273,8 @@ error:
 	ret = -1;
 cleanup:
 	close_kmod();
-	if(mrs) free(mrs);
-	if(alias_masks) free(alias_masks);
+	if (mrs) free(mrs);
+	if (alias_masks) free(alias_masks);
 	return ret;
 }
 
@@ -300,13 +300,13 @@ static error_t parse_opt(int key, char* arg, struct argp_state* state) {
 			args->alias_file_path = arg;
 			break;
 		case 2:
-			if(do_stroul(arg, 0 ,&(args->target_pa) )) {
+			if (do_stroul(arg, 0 ,&(args->target_pa) )) {
 				err_log("failed to parse target_pa \"%s\" to number\n", arg);
 				return ARGP_ERR_UNKNOWN;
 			}
 			break;
 		case 3:
-			if(do_stroul(arg, 0 ,&(args->target_bytes) )) {
+			if (do_stroul(arg, 0 ,&(args->target_bytes) )) {
 				err_log("failed to parse bytes \"%s\" to number\n", arg);
 				return ARGP_ERR_UNKNOWN;
 			}
@@ -319,7 +319,7 @@ static error_t parse_opt(int key, char* arg, struct argp_state* state) {
 			break;
 		case 6: {
 				enum main_mode m = main_mode_from_str(arg);
-				if(m == MM_INVALID) {
+				if (m == MM_INVALID) {
 					err_log("invalid mode value \"%s\"", arg);
 					return ARGP_ERR_UNKNOWN;
 				}
@@ -357,7 +357,7 @@ static struct argp argp = {
 int main(int argc, char** argv) {
 	struct arguments args = {0};
 	args.mode = MM_INVALID;
-	if(argp_parse(&argp, argc, argv, 0, 0, &args)) {
+	if (argp_parse(&argp, argc, argv, 0, 0, &args)) {
 		printf("Failed to parse arguments\n");
 		return -1;
 	}

@@ -17,7 +17,7 @@ void dump_rmp_entry(char* prefix, rmp_entry_t e, FILE* stream) {
 void dump_rmp(rmp_entry_t* rmp, size_t len, FILE* stream) {
 	
   printf("Printing rmp entries\n");
-  for(size_t idx = 0; idx < len; idx++) {
+  for (size_t idx = 0; idx < len; idx++) {
     uint64_t gpa = rmp[idx].info.gpa;
     fprintf(stream, "Entry at offset idx 0x%05ju for hpa 0x%jx : assigned=%d pagesize=%d immutable=%d, gpa=0x%09jx asid=%d vmsa=%d validated=%d\n",
       idx,
