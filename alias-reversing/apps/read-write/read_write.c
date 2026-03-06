@@ -68,6 +68,8 @@ int read_mem_range(mem_range_t mr, struct arguments args) {
             err_log("memcpy_topa for 0x%jx failed\n", pa);
             return -1;
         }
+
+        hexdump(dest, msg_len);
     }
     return 0;
 }
@@ -78,6 +80,12 @@ int read_mem_range(mem_range_t mr, struct arguments args) {
 */
 int run(struct arguments args) {
     printf("address = 0x%lx\n", args.address);
+
+    // open the kernel module
+    if (open_kmod()) {
+        printf("Failed to open kernel module driver. Did you load it?\n");
+        return -1;
+    }
 
     mem_range_t mr;
     mr.start = args.address;

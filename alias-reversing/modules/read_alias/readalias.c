@@ -29,8 +29,7 @@ static int _get_rand_bytes(void *p, size_t len) {
   return nb_read != len;
 }
 
-static void _hexdump(uint8_t* a, const size_t n)
-{
+static void _hexdump(uint8_t* a, const size_t n) {
 	for (size_t i = 0; i < n; i++) {
     if (a[i]) printf("\x1b[31m%02x \x1b[0m", a[i]);
     else printf("%02x ", a[i]);

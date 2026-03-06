@@ -89,7 +89,6 @@ int test_mem_range(mem_range_t mr, uint64_t alias, mr_stats_t* out_stats, struct
  * @returns 0 on success
 */
 int run(struct arguments args) {
-
     //parse alias definitions
     mem_range_t* mr = NULL;
     uint64_t* aliases = NULL;

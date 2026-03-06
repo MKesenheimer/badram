@@ -17,6 +17,7 @@ int get_rand_bytes(void *p, size_t len);
  * @brief Print next n bytes of a
 */
 void hexdump(uint8_t* a, const size_t n);
+void hexdump(uint8_t* a, const size_t n, int bytes_per_row);
 
 /**
  * @brief Wrapper with error handling around strtoul
