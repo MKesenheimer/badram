@@ -13,8 +13,8 @@
 
 //cli arguments
 struct arguments {
-    uint64_t start;
-    uint64_t end;
+    uint64_t address;
+    uint64_t length;
     bool read;
     char* write_string;
     int verbosity;
@@ -25,7 +25,7 @@ struct arguments {
  * @returns 0 on success
 */
 int run(struct arguments args) {
-    
+    printf("address = %lu\n", args.address);
     return 0;
 }
 
@@ -34,8 +34,8 @@ const char* argp_program_bug_address = "matthias.kesenheimer@syss.de";
 static char doc[] = "Tool to test if the specified alias functions work for addresses in the memory range";
 static char args_doc[] = "--start ADDRESS --end ADDRESS [--read] [--write STRING]";
 static struct argp_option options[] = {
-    {"start", 1, "ADDRESS", 0, "Start memory address to read from or write to (i.e. 0x00).\n", 0},
-    {"end", 2, "ADDRESS", 0, "End memory address to read from (i.e. 0xdeadbeef).\n", 0},
+    {"address", 1, "ADDRESS", 0, "Start memory address to read from or write to (i.e. 0x00).\n", 0},
+    {"length", 2, "LENGTH", 0, "Number of bytes to read (i.e. 256).\n", 0},
     {"read", 3, 0, 0, "Whether to read from the memory range.\n", 0},
     {"write", 4, "STRING", 0, "String to write to the memory range.\n", 0},
     {"verbosity", 5, "NUMBER", 0, "Verbosity level (0: default, 1: error, 2: warn, 3: info, 4: debug).\n", 0},
@@ -45,26 +45,31 @@ static struct argp_option options[] = {
 
 static error_t parse_opt(int key, char* arg, struct argp_state* state) {
     struct arguments* args = state->input;
+    static int argc_provided = 0;
     switch(key) {
         case 1:
-            args->start = atoi(arg);
-            if (args->start == 0 && strcmp(arg, "0") != 0) {
+            args->address = atoi(arg);
+            if (args->address == 0 && strcmp(arg, "0") != 0) {
                 perror("atoi");
                 exit(EXIT_FAILURE);
             }
+            ++argc_provided;
             break;
         case 2:
-            args->end = atoi(arg);
-            if (args->end == 0 && strcmp(arg, "0") != 0) {
+            args->length = atoi(arg);
+            if (args->length == 0) {
                 perror("atoi");
                 exit(EXIT_FAILURE);
             }
+            ++argc_provided;
             break;
         case 3:
             args->read = true;
+            ++argc_provided;
             break;
         case 4:
             args->write_string = arg;
+            ++argc_provided;
             break;
         case 5:
             args->verbosity = atoi(arg);
@@ -74,8 +79,8 @@ static error_t parse_opt(int key, char* arg, struct argp_state* state) {
             }
             break;
         case ARGP_KEY_END:
-            if(args->alias_file_path == NULL) {
-                printf("Missing alias file path option\n");
+            if (argc_provided == 0) {
+                printf("Error: No arguments provided\n");
                 argp_usage(state);
                 return ARGP_ERR_UNKNOWN;
             }
@@ -98,9 +103,9 @@ static struct argp argp = {
 
 int main(int argc, char** argv) {
     struct arguments args = {
-        .start = 0,
-        .end = 0,
-        .read = false,
+        .address = 0,
+        .length = 0xff,
+        .read = true,
         .write_string = NULL,
         .verbosity = 0
     };
