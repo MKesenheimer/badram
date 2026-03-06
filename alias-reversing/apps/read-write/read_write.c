@@ -70,6 +70,7 @@ int read_mem_range(mem_range_t mr, struct arguments args) {
         }
 
         hexdump(dest, msg_len);
+        hexdump(dest, msg_len, 16);
     }
     return 0;
 }

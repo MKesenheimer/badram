@@ -3,11 +3,9 @@
 
 #include <stdio.h>
 #include <stdint.h>
+#include <stddef.h>
 
 #include "proc_iomem_parser.h"
-
-#define DEFAULT_BYTES_PER_ROW 16
-#define hexdump(data, size) hexdump(data, size, -1)
 
 #define err_log(fmt, ...) fprintf(stderr, "%s:%d : " fmt, __FILE__, __LINE__, ##__VA_ARGS__);
 
@@ -19,7 +17,33 @@ int get_rand_bytes(void *p, size_t len);
 /**
  * @brief Print next n bytes of a
 */
-void hexdump(uint8_t* a, const size_t n, int bytes_per_row);
+void hexdump_proto1(uint8_t* a, const size_t n);
+void hexdump_proto2(uint8_t* a, const size_t n, const size_t bytes_per_row);
+
+/* internal wrappers */
+static inline void hexdump_wrap2(uint8_t* a, size_t n) {
+    hexdump_proto1(a, n);
+}
+
+static inline void hexdump_wrap3(uint8_t* a, size_t n, const size_t bpr) {
+    hexdump_proto2(a, n, bpr);
+}
+/* dispatcher helpers */
+#define _HEX_GET(_1,_2,_3,NAME,...) NAME
+
+#define hexdump(...) \
+    _HEX_GET(__VA_ARGS__, hexdump3, hexdump2)(__VA_ARGS__)
+
+/* overloads */
+#define hexdump2(a,n) \
+    _Generic((a), \
+        uint8_t*: hexdump_wrap2 \
+    )(a,n)
+
+#define hexdump3(a,n,bpr) \
+    _Generic((a), \
+        uint8_t*: hexdump_wrap3 \
+    )(a,n,bpr)
 
 /**
  * @brief Wrapper with error handling around strtoul

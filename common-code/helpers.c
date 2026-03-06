@@ -19,13 +19,15 @@ int get_rand_bytes(void *p, size_t len) {
   return nb_read != len;
 }
 
-void hexdump(uint8_t* a, const size_t n, int bytes_per_row) {
-  if (bytes_per_row == -1) bytes_per_row = DEFAULT_BYTES_PER_ROW;
+void hexdump_proto1(uint8_t* a, const size_t n) {
+  hexdump_proto2(a, n, 64);
+}
+
+void hexdump_proto2(uint8_t* a, const size_t n, const size_t bytes_per_row) {
   for (size_t i = 0; i < n; i++) {
     if (a[i]) printf("\x1b[31m%02x \x1b[0m", a[i]);
     else printf("%02x ", a[i]);
-    if ((i % bytes_per_row) == 0) printf("\n");
-    if (i % 64 == 63) printf("\n");
+    if ((i % bytes_per_row) == (bytes_per_row - 1)) printf("\n");
   }
   printf("\n");
 }
