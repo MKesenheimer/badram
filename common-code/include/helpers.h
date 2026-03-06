@@ -6,6 +6,9 @@
 
 #include "proc_iomem_parser.h"
 
+#define DEFAULT_BYTES_PER_ROW 16
+#define hexdump(data, size) hexdump(data, size, -1)
+
 #define err_log(fmt, ...) fprintf(stderr, "%s:%d : " fmt, __FILE__, __LINE__, ##__VA_ARGS__);
 
 /**
@@ -16,7 +19,6 @@ int get_rand_bytes(void *p, size_t len);
 /**
  * @brief Print next n bytes of a
 */
-void hexdump(uint8_t* a, const size_t n);
 void hexdump(uint8_t* a, const size_t n, int bytes_per_row);
 
 /**
