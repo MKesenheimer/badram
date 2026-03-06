@@ -25,7 +25,7 @@ enum mapping_type {
  * @paramter out_page : Output parameter, might be filled with reference to page struct, depending on the mapping type
  * @returns valid mapping or NULL on error
 */
-void* custom_map(uint64_t pfn, enum mapping_type* out_mt, struct page** out_page) {
+static void* custom_map(uint64_t pfn, enum mapping_type* out_mt, struct page** out_page) {
   if (pfn_valid(pfn)) {
     *out_mt = MT_VMAP;
     return vmap(out_page, 1, 0, PAGE_KERNEL_IO_NOCACHE);
@@ -44,7 +44,7 @@ void* custom_map(uint64_t pfn, enum mapping_type* out_mt, struct page** out_page
  * @parameter mapping : mapping that should me unmapped
  * @parameter mt : mapping_type returned by custom_map
 */
-void custom_unmap(void* mapping, enum mapping_type mt) {
+static void custom_unmap(void* mapping, enum mapping_type mt) {
   switch(mt) {
   case MT_VMAP:
     vfree(mapping);
@@ -72,7 +72,7 @@ static struct class *myclass = NULL;
 unsigned char buffer[PAGE_SIZE];
 
 
-void clflush_range(void* p, size_t size) {
+static void clflush_range(void* p, size_t size) {
   size_t i;
   for (i = 0; i < size; i += CACHELINE_SIZE) {
     asm volatile("clflush 0(%0)\n" : : "c"(p+i) : "rax");
@@ -81,11 +81,11 @@ void clflush_range(void* p, size_t size) {
 }
 
 
-void wbinvd_ac(void) {
+static void wbinvd_ac(void) {
   wbinvd_on_all_cpus();
 }
 
-void custom_flush(void* mem, size_t bytes, enum flush_method fm) {
+static void custom_flush(void* mem, size_t bytes, enum flush_method fm) {
   switch(fm) {
   case FM_NONE: //No action required
     break;
@@ -110,7 +110,7 @@ void custom_flush(void* mem, size_t bytes, enum flush_method fm) {
  * 
  * @returns Whether the flushing was successful.
  */
-int flush_page(ull pa, int access_reserved) {
+static int flush_page(ull pa, int access_reserved) {
   ull pfn;
   struct page* page;
   enum mapping_type mapping_type;
@@ -156,7 +156,7 @@ int flush_page(ull pa, int access_reserved) {
  * 
  * @returns Whether the copy was successful.
  */
-int memcpy_topage(ull dst, const void* src, size_t count, enum flush_method flush_method, int access_reserved) {
+static int memcpy_topage(ull dst, const void* src, size_t count, enum flush_method flush_method, int access_reserved) {
   ull pfn, offset;
   struct page* page;
   enum mapping_type mapping_type;
@@ -205,7 +205,7 @@ int memcpy_topage(ull dst, const void* src, size_t count, enum flush_method flus
  * 
  * @returns Whether the copy was successful.
  */
-int memcpy_frompage(void* dst, ull src, size_t count, enum flush_method flush_method, int access_reserved) {
+static int memcpy_frompage(void* dst, ull src, size_t count, enum flush_method flush_method, int access_reserved) {
   ull pfn, offset;
   struct page* page;
   enum mapping_type mapping_type;

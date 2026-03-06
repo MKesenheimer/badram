@@ -39,6 +39,36 @@ int read_mem_range(mem_range_t mr, struct arguments args) {
 
     printf("%d\n", args.access_reserved);
 
+    //sweep over pages, storing pages where alias did not work
+    //size_t pages_in_mr = (mr.end - aligned_start) /  4096;
+    //size_t df_next = 0;
+    //size_t access_errors = 0;
+    struct pamemcpy_cfg cfg = {
+        .access_reserved = args.access_reserved,
+        .err_on_access_fail = false,
+        .flush_method = FM_CLFLUSH,
+        .out_stats = {0},
+    };
+
+    const size_t msg_len = 64;
+    uint8_t dest[msg_len];
+
+    //uint64_t* df = malloc(sizeof(uint64_t) * pages_in_mr);
+    for (uint64_t pa = aligned_start; pa < mr.end; pa += 4096) {
+        //uint64_t alias_pa = pa ^ alias;
+        //printf("pa 0x%09jx alias_candidate 0x%09jx\n", pa, alias_pa);
+        //memcpy_topa_ext(dest, pa, msg_len, &cfg);
+
+        if (flush_ext(pa, msg_len, &cfg)) {
+            err_log("flush_range for 0x%jx failed\n", pa);
+            return -1;
+        }
+
+        if (memcpy_frompa_ext(dest, pa, msg_len, &cfg)) {
+            err_log("memcpy_topa for 0x%jx failed\n", pa);
+            return -1;
+        }
+    }
     return 0;
 }
 
