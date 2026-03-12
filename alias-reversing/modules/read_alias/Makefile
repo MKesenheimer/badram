@@ -20,6 +20,7 @@ libkmodreadlias.a: readalias.c
 	ar rcs libkmodreadalias.a readalias.o
 
 install:
+	mkdir -p /lib/modules/$(KERNEL_RELEASE)/extra/
 	cp kmod_readalias.ko /lib/modules/$(KERNEL_RELEASE)/extra/
 	depmod
 
